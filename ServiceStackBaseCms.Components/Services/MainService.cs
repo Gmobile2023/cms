@@ -6,10 +6,11 @@ namespace ServiceStackBaseCms.Components.Services;
 public class MainService : Service
 {
     private readonly IServiceStackBaseRepository _serviceStackBaseRepository;
-
-    public MainService(IServiceStackBaseRepository serviceStackBaseRepository)
+    private readonly IManagerUserRepository _managerUserRepository;
+    public MainService(IServiceStackBaseRepository serviceStackBaseRepository, IManagerUserRepository managerUserRepository)
     {
         _serviceStackBaseRepository = serviceStackBaseRepository;
+        _managerUserRepository = managerUserRepository;
     }
 
     public async Task<object> GetAsync(QueryTodos request)
@@ -31,5 +32,29 @@ public class MainService : Service
     public async Task<object> PutAsync(UpdateTodoRequest request)
     {
         return _serviceStackBaseRepository.UpdateTodoAsync(request);
+    }
+
+    public async Task<object> PostAsync(CreateUserRequest request)
+    {
+        return _managerUserRepository.CreateUser(request);
+    }
+    
+    public async Task<object> PostAsync(UpdateUserRequest request)
+    {
+        return _managerUserRepository.UpdateUser(request);
+    }
+
+    public async Task<object> GetAsync(UsersRequest request)
+    {
+        return _managerUserRepository.GetUsers(request);
+    }
+    public async Task<object> GetAsync(UserRequest request)
+    {
+        return _managerUserRepository.GetUser(request.Id);
+    }
+
+    public async Task<object> GetAsync(RolesRequest request)
+    {
+        return _managerUserRepository.GetRoles(request);
     }
 }

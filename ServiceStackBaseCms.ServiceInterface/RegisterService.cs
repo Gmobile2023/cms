@@ -62,7 +62,7 @@ public class RegisterService(UserManager<ApplicationUser> userManager, IEmailSen
         var newUser = request.ConvertTo<ApplicationUser>();
         newUser.UserName ??= newUser.Email;
         newUser.Email = request.Email;
-
+        newUser.EmailConfirmed = true;
         //TODO: Remove to use force email confirmation
         //newUser.EmailConfirmed = emailNotSetup;
 
