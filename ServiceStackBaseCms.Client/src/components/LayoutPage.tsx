@@ -1,6 +1,4 @@
-import Layout from "@/components/Layout"
-import { cn } from "@/utils"
-import BlankLayout from "./Layouts/BlankLayout"
+import BlankLayout from "@/components/layouts/BlankLayout"
 
 type Props = {
     title: string

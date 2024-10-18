@@ -1,22 +1,18 @@
 import { lazy } from "react";
 import SignupConfirm from "@/pages/authentication/signup-confirm";
 import Dashboard from "@/pages/dashboard";
-import Todos from "@/pages/todos";
 import UsersManager from "@/pages/users-manager";
 import Roles from "@/pages/roles";
 import Permission from "@/pages/permission";
 import Signup from "@/pages/authentication/signup";
 const Signin = lazy(() => import("../pages/authentication/signin"));
+const Pages = lazy(() => import("../pages/pages"));
 
 const routes = [
-    // dashboard
     {
         path: "/",
+        // @ts-ignore
         element: <Dashboard />,
-    },
-    {
-        path: "/todos",
-        element: <Todos />,
     },
     {
         path: "/signin",
@@ -36,11 +32,8 @@ const routes = [
 
     {
         path: "/dashboard",
+        // @ts-ignore
         element: <Dashboard />,
-    },
-    {
-        path: "/todos",
-        element: <Todos />,
     },
     {
         path: "/users-manager",
@@ -53,6 +46,10 @@ const routes = [
     {
         path: "/permission-manager",
         element: <Permission />,
+    },
+    {
+        path: "/pages",
+        element: <Pages />,
     },
 ];
 
