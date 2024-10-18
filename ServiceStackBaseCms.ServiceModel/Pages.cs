@@ -20,9 +20,9 @@ public class Page : AuditBase
 
 public enum PageStatus
 {
-    Draft,
-    Published,
-    Archived,
+    Draft = 0,
+    Published = 1,
+    Archived = 2,
 }
 
 [Tag("pages"), Description("Danh sách/Chi tiết page")]
@@ -42,7 +42,9 @@ public class CreatePage : ICreateDb<Page>, IReturn<IdResponse>
 {
     public required string Title { get; set; }
     public string Permalink { get; set; }
+    [Input(Type = "textarea")]
     public string ShortDescription { get; set; }
+    [Input(Type = "textarea")]
     public required string Content { get; set; }
     public string SeoMeta { get; set; }
     public PageStatus Status { get; set; }
