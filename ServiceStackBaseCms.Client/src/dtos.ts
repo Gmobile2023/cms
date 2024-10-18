@@ -35,11 +35,11 @@ export interface IHasBearerToken {
     bearerToken?: string;
 }
 
-export interface IDelete {}
-
 export interface IPost {}
 
 export interface IPut {}
+
+export interface IDelete {}
 
 export interface ICreateDb<Table> {}
 
@@ -75,7 +75,56 @@ export class QueryBase {
     }
 }
 
+export class QueryData<T> extends QueryBase {
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string };
+
+    public constructor(init?: Partial<QueryData<T>>) {
+        super(init);
+        (Object as any).assign(this, init);
+    }
+}
+
 export class QueryDb<T> extends QueryBase {
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string };
+
     public constructor(init?: Partial<QueryDb<T>>) {
         super(init);
         (Object as any).assign(this, init);
@@ -145,30 +194,24 @@ export class Booking extends AuditBase {
     public notes?: string;
     public cancelled?: boolean;
 
+    // @DataMember(Order=2)
+    // @Required()
+    public createdBy: string;
+
+    // @DataMember(Order=3)
+    public modifiedDate: string;
+
+    // @DataMember(Order=4)
+    // @Required()
+    public modifiedBy: string;
+
+    // @DataMember(Order=5)
+    public deletedDate?: string;
+
+    // @DataMember(Order=6)
+    public deletedBy: string;
+
     public constructor(init?: Partial<Booking>) {
-        super(init);
-        (Object as any).assign(this, init);
-    }
-}
-
-export enum PageStatus {
-    Draft = "Draft",
-    Published = "Published",
-    Archived = "Archived",
-}
-
-/** @description Pages Management */
-export class Page extends AuditBase {
-    public id: number;
-    public title: string;
-    public permalink: string;
-    public shortDescription: string;
-    public content: string;
-    public seoMeta: string;
-    public status: PageStatus;
-    public thumbnailImage: string;
-
-    public constructor(init?: Partial<Page>) {
         super(init);
         (Object as any).assign(this, init);
     }
@@ -231,16 +274,6 @@ export class ResponseStatus {
     public meta: { [index: string]: string };
 
     public constructor(init?: Partial<ResponseStatus>) {
-        (Object as any).assign(this, init);
-    }
-}
-
-export class TodoDto {
-    public id: number;
-    public text: string;
-    public isFinished: boolean;
-
-    public constructor(init?: Partial<TodoDto>) {
         (Object as any).assign(this, init);
     }
 }

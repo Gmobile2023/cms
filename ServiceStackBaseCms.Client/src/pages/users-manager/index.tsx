@@ -106,8 +106,8 @@ const UsersManager = () => {
             console.log(response);
         }
 
-        // showMessage("User has been saved successfully.");
-        // setAddUserModal(false);
+        showMessage("User has been saved successfully.");
+        setAddUserModal(false);
     };
 
     const editUser = (user: any = null) => {
