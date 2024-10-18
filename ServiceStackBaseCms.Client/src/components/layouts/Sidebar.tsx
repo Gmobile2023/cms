@@ -47,7 +47,7 @@ const Sidebar = () => {
         {
             label: "Quản lý Trang",
             path: "/pages",
-            permission: "manage_pages",
+            permission: "",
             icon: <IconNotesEdit />
         },
         {
