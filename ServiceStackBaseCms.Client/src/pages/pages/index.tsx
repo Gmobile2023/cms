@@ -10,6 +10,8 @@ import sortBy from 'lodash/sortBy';
 import { ValidateAuth } from "@/useAuth";
 import { debounce } from 'lodash';
 import moment from 'moment';
+import { Loading } from "@/components/Form";
+import { Link } from "react-router-dom";
 
 const Pages = () => {
     const dispatch = useDispatch();
@@ -89,7 +91,7 @@ const Pages = () => {
     }, [sortStatus]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Loading className="py-2 pl-4" text="Vui lòng chờ một chút ..." />;
     }
 
     if (error) {
@@ -129,6 +131,13 @@ const Pages = () => {
                     <h5 className="font-semibold text-lg dark:text-white-light">
                         Quản lý trang
                     </h5>
+                    <div className="ml-auto">
+                        <Link to="/pages/new" className="jusity-content-end">
+                            <Button variant="filled" color="blue">
+                                Thêm mới
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
                 <div className="datatables">
                     <input
