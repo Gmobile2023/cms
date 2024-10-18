@@ -1,0 +1,6 @@
+@ServiceStackBaseCms.Server_HostAddress = http://localhost:5283
+
+GET {{ServiceStackBaseCms.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

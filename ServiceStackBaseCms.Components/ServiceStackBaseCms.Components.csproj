@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ServiceStackBaseCms.Domain\ServiceStackBaseCms.Domain.csproj" />
+      <ProjectReference Include="..\ServiceStackBaseCms.ServiceModel\ServiceStackBaseCms.ServiceModel.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="protobuf-net.Core" Version="3.2.30" />
+      <PackageReference Include="ServiceStack" Version="8.4.0" />
+    </ItemGroup>
+
+</Project>
