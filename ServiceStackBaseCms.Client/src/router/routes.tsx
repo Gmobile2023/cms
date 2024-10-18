@@ -5,6 +5,8 @@ import UsersManager from "@/pages/users-manager";
 import Roles from "@/pages/roles";
 import Permission from "@/pages/permission";
 import Signup from "@/pages/authentication/signup";
+
+const Forbidden = lazy(() => import("../pages/forbidden"));
 const Signin = lazy(() => import("../pages/authentication/signin"));
 const Pages = lazy(() => import("../pages/pages"));
 
@@ -13,6 +15,11 @@ const routes = [
         path: "/",
         // @ts-ignore
         element: <Dashboard />,
+    },
+    {
+        path: "/forbidden",
+        element: <Forbidden />,
+        layout: "blank",
     },
     {
         path: "/signin",
@@ -37,6 +44,7 @@ const routes = [
     },
     {
         path: "/users-manager",
+        // @ts-ignore
         element: <UsersManager />,
     },
     {
@@ -49,6 +57,7 @@ const routes = [
     },
     {
         path: "/pages",
+        // @ts-ignore
         element: <Pages />,
     },
 ];

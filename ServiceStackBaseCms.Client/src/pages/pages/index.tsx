@@ -6,6 +6,7 @@ import { client } from "@/gateway";
 import { QueryPages } from "@/dtos";
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import sortBy from 'lodash/sortBy';
+import { ValidateAuth } from "@/useAuth";
 
 const Pages = () => {
     const dispatch = useDispatch();
@@ -113,4 +114,4 @@ const Pages = () => {
     );
 };
 
-export default Pages;
+export default ValidateAuth(Pages, { role: 'Admin' });
