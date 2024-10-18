@@ -8,7 +8,7 @@ import IconUser from "../../components/Icon/IconUser";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
-import { CreateUser, fetchAllUser } from "@/services/usersService";
+import { CreateUser, fetchAllUser, UpdateUser } from "@/services/usersService";
 
 const UsersManager = () => {
     const dispatch = useDispatch();
@@ -82,19 +82,20 @@ const UsersManager = () => {
             showMessage("Email is required.", "error");
             return true;
         }
-        if (!params.password) {
-            showMessage("Password is required.", "error");
-            return true;
-        }
+        // if (!params.password) {
+        //     showMessage("Password is required.", "error");
+        //     return true;
+        // }
 
         if (params.id) {
             // Update user
             let user = {
                 userName: params.userName,
                 email: params.email,
-                password: params.password,
+                // password: params.password,
             };
-            console.log("Update user", user);
+            const response = await UpdateUser(user);
+            console.log(response);
         } else {
             let user = {
                 userName: params.userName,
