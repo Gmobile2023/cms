@@ -27,6 +27,7 @@ public class ConfigureDb : IHostingStartup
                 connectionString,
                 PostgreSqlDialect.Provider));
             services.AddScoped<IServiceStackBaseRepository, ServiceStackBaseRepository>();
+            services.AddScoped<IManagerUserRepository, ManagerUserRepository>();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString, b => b.MigrationsAssembly(nameof(ServiceStackBaseCms))));
         })
