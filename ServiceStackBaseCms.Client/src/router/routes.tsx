@@ -1,12 +1,12 @@
 import { lazy } from "react";
 import SignupConfirm from "@/pages/authentication/signup-confirm";
 import Dashboard from "@/pages/dashboard";
-import Todos from "@/pages/todos";
-import UsersManager from "@/pages/users-manager";
-import Roles from "@/pages/roles";
-import Permission from "@/pages/permission";
 import Signup from "@/pages/authentication/signup";
 const Signin = lazy(() => import("../pages/authentication/signin"));
+const UsersManager = lazy(() => import("@/pages/users-manager"));
+const Todos = lazy(() => import("@/pages/todos"));
+const Roles = lazy(() => import("@/pages/roles"));
+const Permission = lazy(() => import("@/pages/permission"));
 
 const routes = [
     // dashboard
