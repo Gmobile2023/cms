@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-18 10:16:47
+Date: 2024-10-18 14:42:29
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -446,6 +446,95 @@ export class UpdateTodoRequest implements IReturn<TodoDto>, IPut
     public getTypeName() { return 'UpdateTodoRequest'; }
     public getMethod() { return 'PUT'; }
     public createResponse() { return new TodoDto(); }
+}
+
+// @Route("/user", "POST")
+export class CreateUserRequest
+{
+    public firstName?: string;
+    public lastName?: string;
+    public displayName?: string;
+    public profileUrl?: string;
+    public userName?: string;
+    public normalizedUserName?: string;
+    public email?: string;
+    public normalizedEmail?: string;
+    public emailConfirmed: boolean;
+    public password?: string;
+    public securityStamp?: string;
+    public concurrencyStamp?: string;
+    public phoneNumber?: string;
+    public phoneNumberConfirmed: boolean;
+    public twoFactorEnabled: boolean;
+    public lockoutEnd?: string;
+    public lockoutEnabled: boolean;
+    public roles: string[];
+
+    public constructor(init?: Partial<CreateUserRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'CreateUserRequest'; }
+    public getMethod() { return 'POST'; }
+    public createResponse() {}
+}
+
+// @Route("/user", "PUT")
+export class UpdateUserRequest
+{
+    public firstName?: string;
+    public lastName?: string;
+    public displayName?: string;
+    public profileUrl?: string;
+    public userName?: string;
+    public normalizedUserName?: string;
+    public email?: string;
+    public normalizedEmail?: string;
+    public emailConfirmed: boolean;
+    public password?: string;
+    public securityStamp?: string;
+    public concurrencyStamp?: string;
+    public phoneNumber?: string;
+    public phoneNumberConfirmed: boolean;
+    public twoFactorEnabled: boolean;
+    public lockoutEnd?: string;
+    public lockoutEnabled: boolean;
+    public roles: string[];
+
+    public constructor(init?: Partial<UpdateUserRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UpdateUserRequest'; }
+    public getMethod() { return 'PUT'; }
+    public createResponse() {}
+}
+
+// @Route("/users", "GET")
+export class UsersRequest
+{
+    public name: string;
+
+    public constructor(init?: Partial<UsersRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UsersRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/user/{Id}", "GET")
+export class UserRequest
+{
+    public id: string;
+
+    public constructor(init?: Partial<UserRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UserRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/roles", "GET")
+export class RolesRequest
+{
+    public name: string;
+
+    public constructor(init?: Partial<RolesRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'RolesRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
 }
 
 // @Route("/hello/{Name}")
