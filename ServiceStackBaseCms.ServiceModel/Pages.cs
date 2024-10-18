@@ -4,6 +4,7 @@ using ServiceStack.DataAnnotations;
 namespace ServiceStackBaseCms.ServiceModel;
 
 [Description("Pages Management")]
+[Alias("pages")]
 public class Page : AuditBase
 {
     [AutoIncrement]

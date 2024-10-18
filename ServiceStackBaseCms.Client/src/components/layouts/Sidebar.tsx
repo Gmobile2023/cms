@@ -11,6 +11,7 @@ import IconMinus from "../Icon/IconMinus";
 import IconCaretsDown from "../Icon/IconCaretsDown";
 import IconMenuUsers from "../Icon/Menu/IconMenuUsers";
 import IconSettings from "../Icon/IconSettings";
+import IconNotesEdit from "../Icon/IconNotesEdit";
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>("");
@@ -91,16 +92,6 @@ const Sidebar = () => {
                             <li className="nav-item">
                                 <ul>
                                     <li className="nav-item">
-                                        <NavLink to="/todos" className="group">
-                                            <div className="flex items-center">
-                                                <IconMenuTodo className="group-hover:!text-primary shrink-0" />
-                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
-                                                    Todo List
-                                                </span>
-                                            </div>
-                                        </NavLink>
-                                    </li>
-                                    <li className="nav-item">
                                         <NavLink
                                             to="/users-manager"
                                             className="group"
@@ -109,6 +100,20 @@ const Sidebar = () => {
                                                 <IconMenuUsers className="group-hover:!text-primary shrink-0" />
                                                 <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
                                                     Người dùng
+                                                </span>
+                                            </div>
+                                        </NavLink>
+                                    </li>
+
+                                    <li className="nav-item">
+                                        <NavLink
+                                            to="/pages"
+                                            className="group"
+                                        >
+                                            <div className="flex items-center">
+                                                <IconNotesEdit className="group-hover:!text-primary shrink-0" />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    Quản lý Trang
                                                 </span>
                                             </div>
                                         </NavLink>

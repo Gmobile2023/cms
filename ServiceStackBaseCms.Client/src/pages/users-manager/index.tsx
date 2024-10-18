@@ -194,7 +194,7 @@ const UsersManager = () => {
             <div className="panel">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <h5 className="font-semibold text-lg dark:text-white-light">
-                        Users Manager
+                        Quản lý người dùng
                     </h5>
                 </div>
                 <div className="flex sm:flex-row flex-col sm:items-center sm:gap-3 gap-4 w-full sm:w-auto">
@@ -206,14 +206,14 @@ const UsersManager = () => {
                                 onClick={() => editUser()}
                             >
                                 <IconUserPlus className="ltr:mr-2 rtl:ml-2" />
-                                Add User
+                                Thêm mới
                             </button>
                         </div>
                     </div>
                     <div className="relative">
                         <input
                             type="text"
-                            placeholder="Search user"
+                            placeholder="Tìm kiếm"
                             className="form-input py-2 ltr:pr-11 rtl:pl-11 peer"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -231,11 +231,11 @@ const UsersManager = () => {
                         <table className="table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
+                                    <th>Họ tên</th>
                                     <th>Email</th>
-                                    <th>Location</th>
-                                    <th>Phone</th>
-                                    <th className="!text-center">Actions</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Số điện thoại</th>
+                                    <th className="!text-center">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -282,7 +282,7 @@ const UsersManager = () => {
                                                             editUser(contact)
                                                         }
                                                     >
-                                                        Edit
+                                                        Sửa
                                                     </button>
                                                     <button
                                                         type="button"
@@ -291,7 +291,7 @@ const UsersManager = () => {
                                                             deleteUser(contact)
                                                         }
                                                     >
-                                                        Delete
+                                                        Xoá
                                                     </button>
                                                 </div>
                                             </td>
