@@ -191,32 +191,6 @@ namespace ServiceStackBaseCms.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
-            
-            migrationBuilder.CreateTable(
-                name: "pages",
-                schema: "public",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    title = table.Column<string>(type: "text", nullable: false),
-                    permalink = table.Column<string>(type: "text", nullable: false),
-                    short_description = table.Column<string>(type: "text", nullable: true),
-                    content = table.Column<string>(type: "text", nullable: true),
-                    seo_meta = table.Column<string>(type: "text", nullable: true),
-                    status = table.Column<int>(type: "integer", nullable: false), // Ensure this is an integer for enum storage
-                    thumbnail_image = table.Column<string>(type: "text", nullable: true),
-                    created_date = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    created_by = table.Column<string>(type: "text", nullable: true),
-                    modified_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    deleted_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_by = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_pages", x => x.id);
-                });
 
             migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
@@ -261,12 +235,6 @@ namespace ServiceStackBaseCms.Migrations
                 table: "users",
                 column: "normalized_user_name",
                 unique: true);
-            
-            migrationBuilder.CreateIndex(
-                name: "PagePermalinkIndex",
-                schema: "public",
-                table: "pages",
-                column: "permalink");
         }
 
         /// <inheritdoc />
@@ -302,10 +270,6 @@ namespace ServiceStackBaseCms.Migrations
 
             migrationBuilder.DropTable(
                 name: "users",
-                schema: "public");
-            
-            migrationBuilder.DropTable(
-                name: "pages",
                 schema: "public");
         }
     }

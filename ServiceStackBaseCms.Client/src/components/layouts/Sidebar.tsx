@@ -11,8 +11,6 @@ import IconMinus from "../Icon/IconMinus";
 import IconCaretsDown from "../Icon/IconCaretsDown";
 import IconMenuUsers from "../Icon/Menu/IconMenuUsers";
 import IconSettings from "../Icon/IconSettings";
-import IconNotesEdit from "../Icon/IconNotesEdit";
-import { useAuth } from "@/useAuth";
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>("");
@@ -22,8 +20,6 @@ const Sidebar = () => {
     );
     const location = useLocation();
     const dispatch = useDispatch();
-    const { hasPermission, revalidate } = useAuth();
-
     const toggleMenu = (value: string) => {
         setCurrentMenu((oldValue) => {
             return oldValue === value ? "" : value;
@@ -31,40 +27,28 @@ const Sidebar = () => {
     };
 
     useEffect(() => {
+        // const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+        // if (selector) {
+        //     selector.classList.add('active');
+        //     const ul: any = selector.closest('ul.sub-menu');
+        //     if (ul) {
+        //         let ele: any = ul.closest('li.menu').querySelectorAll('.nav-link') || [];
+        //         if (ele.length) {
+        //             ele = ele[0];
+        //             setTimeout(() => {
+        //                 ele.click();
+        //             });
+        //         }
+        //     }
+        // }
+    }, []);
+
+    useEffect(() => {
         if (window.innerWidth < 1024 && themeConfig.sidebar) {
             dispatch(toggleSidebar());
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-
-    // Permissions
-    const menuItems = [
-        {
-            label: "Người dùng",
-            path: "/users-manager",
-            permission: "manage_users",
-            icon: <IconMenuUsers />
-        },
-        {
-            label: "Quản lý Trang",
-            path: "/pages",
-            permission: "",
-            icon: <IconNotesEdit />
-        },
-        {
-            label: "Hệ thống",
-            submenu: [
-                { label: "Cài đặt", path: "/system/setting" },
-                { label: "Preview", path: "/system/preview" },
-            ],
-            permission: "manage_system",
-            icon: <IconSettings />
-        },
-    ];
-
-    // Filter menu items based on permissions
-    const filteredMenuItems = menuItems.filter(item => {
-        return !item.permission || hasPermission(item.permission);
-    });
 
     return (
         <div className={semidark ? "dark" : ""}>
@@ -104,71 +88,86 @@ const Sidebar = () => {
                                 <span>Menu</span>
                             </h2>
 
-                            {filteredMenuItems.map((item, index) => (
-                                <li className="nav-item" key={index}>
-                                    {item.submenu ? (
-                                        <>
-                                            <button
-                                                type="button"
-                                                className={`${
-                                                    currentMenu === item.label
-                                                        ? "active"
-                                                        : ""
-                                                } nav-link group w-full`}
-                                                onClick={() =>
-                                                    toggleMenu(item.label)
-                                                }
-                                            >
-                                                <div className="flex items-center">
-                                                    {item.icon}
-                                                    <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
-                                                        {item.label}
-                                                    </span>
-                                                </div>
-                                                <div
-                                                    className={
-                                                        currentMenu !== item.label
-                                                            ? "rtl:rotate-90 -rotate-90"
-                                                            : ""
-                                                    }
-                                                >
-                                                    <IconCaretDown />
-                                                </div>
-                                            </button>
-                                            <AnimateHeight
-                                                duration={300}
-                                                height={
-                                                    currentMenu === item.label
-                                                        ? "auto"
-                                                        : 0
-                                                }
-                                            >
-                                                <ul className="sub-menu text-gray-500">
-                                                    {item.submenu.map((subItem, subIndex) => (
-                                                        <li key={subIndex}>
-                                                            <NavLink to={subItem.path}>
-                                                                {subItem.label}
-                                                            </NavLink>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </AnimateHeight>
-                                        </>
-                                    ) : (
-                                        <NavLink
-                                            to={item.path}
-                                            className="group"
-                                        >
+                            <li className="nav-item">
+                                <ul>
+                                    <li className="nav-item">
+                                        <NavLink to="/todos" className="group">
                                             <div className="flex items-center">
-                                                {item.icon}
+                                                <IconMenuTodo className="group-hover:!text-primary shrink-0" />
                                                 <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
-                                                    {item.label}
+                                                    Todo List
                                                 </span>
                                             </div>
                                         </NavLink>
-                                    )}
-                                </li>
-                            ))}
+                                    </li>
+                                    <li className="nav-item">
+                                        <NavLink
+                                            to="/users-manager"
+                                            className="group"
+                                        >
+                                            <div className="flex items-center">
+                                                <IconMenuUsers className="group-hover:!text-primary shrink-0" />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    Người dùng
+                                                </span>
+                                            </div>
+                                        </NavLink>
+                                    </li>
+
+                                    <li className="menu nav-item">
+                                        <button
+                                            type="button"
+                                            className={`${
+                                                currentMenu === "invoice"
+                                                    ? "active"
+                                                    : ""
+                                            } nav-link group w-full`}
+                                            onClick={() =>
+                                                toggleMenu("invoice")
+                                            }
+                                        >
+                                            <div className="flex items-center">
+                                                <IconSettings className="group-hover:!text-primary shrink-0" />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    Hệ thống
+                                                </span>
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    currentMenu !== "invoice"
+                                                        ? "rtl:rotate-90 -rotate-90"
+                                                        : ""
+                                                }
+                                            >
+                                                <IconCaretDown />
+                                            </div>
+                                        </button>
+
+                                        <AnimateHeight
+                                            duration={300}
+                                            height={
+                                                currentMenu === "system"
+                                                    ? "auto"
+                                                    : 0
+                                            }
+                                        >
+                                            <ul className="sub-menu text-gray-500">
+                                                <li>
+                                                    <NavLink to="/system/setting">
+                                                        Cài đặt
+                                                    </NavLink>
+                                                </li>
+                                                <li>
+                                                    <NavLink to="/system/preview">
+                                                        preview
+                                                    </NavLink>
+                                                </li>
+                                            </ul>
+                                        </AnimateHeight>
+                                    </li>
+                                </ul>
+                            </li>
                         </ul>
                     </PerfectScrollbar>
                 </div>

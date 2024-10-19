@@ -13,13 +13,6 @@ public class CustomUserSession : AuthUserSession
     {
         // Populate Session with data from Identity Auth Claims
         ProfileUrl = principal.FindFirstValue(JwtClaimTypes.Picture);
-        
-        var permissions = principal.Claims
-            .Where(c => c.Type == JwtClaimTypes.Permission)
-            .Select(c => c.Value)
-            .ToList();
-
-        Permissions = permissions;
     }
 }
 

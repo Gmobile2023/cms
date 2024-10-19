@@ -1,6 +1,6 @@
 /* Options:
-Date: 2024-10-19 00:54:22
-Version: 8.40
+Date: 2024-02-28 19:37:38
+Version: 8.13
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
 
@@ -41,15 +41,15 @@ export interface IHasBearerToken
     bearerToken?: string;
 }
 
-export interface IDelete
-{
-}
-
 export interface IPost
 {
 }
 
 export interface IPut
+{
+}
+
+export interface IDelete
 {
 }
 
@@ -92,8 +92,54 @@ export class QueryBase
     public constructor(init?: Partial<QueryBase>) { (Object as any).assign(this, init); }
 }
 
+export class QueryData<T> extends QueryBase
+{
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<QueryData<T>>) { super(init); (Object as any).assign(this, init); }
+}
+
 export class QueryDb<T> extends QueryBase
 {
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<QueryDb<T>>) { super(init); (Object as any).assign(this, init); }
 }
@@ -160,32 +206,27 @@ export class Booking extends AuditBase
     public discount: Coupon;
     public notes?: string;
     public cancelled?: boolean;
+    // @DataMember(Order=1)
+    public createdDate: string;
+
+    // @DataMember(Order=2)
+    // @Required()
+    public createdBy: string;
+
+    // @DataMember(Order=3)
+    public modifiedDate: string;
+
+    // @DataMember(Order=4)
+    // @Required()
+    public modifiedBy: string;
+
+    // @DataMember(Order=5)
+    public deletedDate?: string;
+
+    // @DataMember(Order=6)
+    public deletedBy: string;
 
     public constructor(init?: Partial<Booking>) { super(init); (Object as any).assign(this, init); }
-}
-
-export enum PageStatus
-{
-    Draft = 'Draft',
-    Published = 'Published',
-    Archived = 'Archived',
-}
-
-/** @description Pages Management */
-export class Page extends AuditBase
-{
-    public id: number;
-    public title: string;
-    public permalink: string;
-    public shortDescription: string;
-    public content: string;
-    public seoMeta: string;
-    // @Required()
-    public status: PageStatus;
-
-    public thumbnailImage: string;
-
-    public constructor(init?: Partial<Page>) { super(init); (Object as any).assign(this, init); }
 }
 
 export class Forecast implements IGet
@@ -245,15 +286,6 @@ export class ResponseStatus
     public constructor(init?: Partial<ResponseStatus>) { (Object as any).assign(this, init); }
 }
 
-export class TodoDto
-{
-    public id: number;
-    public text: string;
-    public isFinished: boolean;
-
-    public constructor(init?: Partial<TodoDto>) { (Object as any).assign(this, init); }
-}
-
 export class HelloResponse
 {
     public result: string;
@@ -310,6 +342,36 @@ export class RegisterResponse implements IHasSessionId, IHasBearerToken
     public constructor(init?: Partial<RegisterResponse>) { (Object as any).assign(this, init); }
 }
 
+export class Todo
+{
+    public id: number;
+    public text: string;
+    public isFinished: boolean;
+
+    public constructor(init?: Partial<Todo>) { (Object as any).assign(this, init); }
+}
+
+// @DataContract
+export class QueryResponse<Todo>
+{
+    // @DataMember(Order=1)
+    public offset: number;
+
+    // @DataMember(Order=2)
+    public total: number;
+
+    // @DataMember(Order=3)
+    public results: Todo[];
+
+    // @DataMember(Order=4)
+    public meta: { [index: string]: string; };
+
+    // @DataMember(Order=5)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<QueryResponse<Todo>>) { (Object as any).assign(this, init); }
+}
+
 // @DataContract
 export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 {
@@ -356,27 +418,6 @@ export class AuthenticateResponse implements IHasSessionId, IHasBearerToken
 }
 
 // @DataContract
-export class QueryResponse<Booking>
-{
-    // @DataMember(Order=1)
-    public offset: number;
-
-    // @DataMember(Order=2)
-    public total: number;
-
-    // @DataMember(Order=3)
-    public results: Booking[];
-
-    // @DataMember(Order=4)
-    public meta: { [index: string]: string; };
-
-    // @DataMember(Order=5)
-    public responseStatus: ResponseStatus;
-
-    public constructor(init?: Partial<QueryResponse<Booking>>) { (Object as any).assign(this, init); }
-}
-
-// @DataContract
 export class IdResponse
 {
     // @DataMember(Order=1)
@@ -386,158 +427,6 @@ export class IdResponse
     public responseStatus: ResponseStatus;
 
     public constructor(init?: Partial<IdResponse>) { (Object as any).assign(this, init); }
-}
-
-// @Route("/todos", "GET")
-export class QueryTodos
-{
-    public id?: number;
-    public ids?: number[];
-    public textContains?: string;
-
-    public constructor(init?: Partial<QueryTodos>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'QueryTodos'; }
-    public getMethod() { return 'GET'; }
-    public createResponse() {}
-}
-
-// @Route("/todos/{Id}", "GET")
-export class GetTodoRequest implements IReturn<TodoDto>, IGet
-{
-    public id: number;
-
-    public constructor(init?: Partial<GetTodoRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'GetTodoRequest'; }
-    public getMethod() { return 'GET'; }
-    public createResponse() { return new TodoDto(); }
-}
-
-// @Route("/todos/{Id}", "DELETE")
-export class DeleteTodoRequest implements IReturnVoid, IDelete
-{
-    public id: number;
-
-    public constructor(init?: Partial<DeleteTodoRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'DeleteTodoRequest'; }
-    public getMethod() { return 'DELETE'; }
-    public createResponse() {}
-}
-
-// @Route("/todos", "POST")
-export class CreateTodoRequest implements IReturn<TodoDto>, IPost
-{
-    // @Validate(Validator="NotEmpty")
-    public text: string;
-
-    public constructor(init?: Partial<CreateTodoRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'CreateTodoRequest'; }
-    public getMethod() { return 'POST'; }
-    public createResponse() { return new TodoDto(); }
-}
-
-// @Route("/todos/{Id}", "PUT")
-export class UpdateTodoRequest implements IReturn<TodoDto>, IPut
-{
-    public id: number;
-    // @Validate(Validator="NotEmpty")
-    public text: string;
-
-    public isFinished: boolean;
-
-    public constructor(init?: Partial<UpdateTodoRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'UpdateTodoRequest'; }
-    public getMethod() { return 'PUT'; }
-    public createResponse() { return new TodoDto(); }
-}
-
-// @Route("/user", "POST")
-export class CreateUserRequest
-{
-    public firstName?: string;
-    public lastName?: string;
-    public displayName?: string;
-    public profileUrl?: string;
-    public userName?: string;
-    public normalizedUserName?: string;
-    public email?: string;
-    public normalizedEmail?: string;
-    public emailConfirmed: boolean;
-    public password?: string;
-    public securityStamp?: string;
-    public concurrencyStamp?: string;
-    public phoneNumber?: string;
-    public phoneNumberConfirmed: boolean;
-    public twoFactorEnabled: boolean;
-    public lockoutEnd?: string;
-    public lockoutEnabled: boolean;
-    public roles: string[];
-
-    public constructor(init?: Partial<CreateUserRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'CreateUserRequest'; }
-    public getMethod() { return 'POST'; }
-    public createResponse() {}
-}
-
-// @Route("/user", "PUT")
-export class UpdateUserRequest
-{
-    public id?: string;
-    public firstName?: string;
-    public lastName?: string;
-    public displayName?: string;
-    public profileUrl?: string;
-    public userName?: string;
-    public normalizedUserName?: string;
-    public email?: string;
-    public normalizedEmail?: string;
-    public emailConfirmed: boolean;
-    public password?: string;
-    public securityStamp?: string;
-    public concurrencyStamp?: string;
-    public phoneNumber?: string;
-    public phoneNumberConfirmed: boolean;
-    public twoFactorEnabled: boolean;
-    public lockoutEnd?: string;
-    public lockoutEnabled: boolean;
-    public roles: string[];
-
-    public constructor(init?: Partial<UpdateUserRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'UpdateUserRequest'; }
-    public getMethod() { return 'PUT'; }
-    public createResponse() {}
-}
-
-// @Route("/users", "GET")
-export class UsersRequest
-{
-    public name: string;
-
-    public constructor(init?: Partial<UsersRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'UsersRequest'; }
-    public getMethod() { return 'GET'; }
-    public createResponse() {}
-}
-
-// @Route("/user/{Id}", "GET")
-export class UserRequest
-{
-    public id: string;
-
-    public constructor(init?: Partial<UserRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'UserRequest'; }
-    public getMethod() { return 'GET'; }
-    public createResponse() {}
-}
-
-// @Route("/roles", "GET")
-export class RolesRequest
-{
-    public name: string;
-
-    public constructor(init?: Partial<RolesRequest>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'RolesRequest'; }
-    public getMethod() { return 'GET'; }
-    public createResponse() {}
 }
 
 // @Route("/hello/{Name}")
@@ -624,6 +513,88 @@ export class ConfirmEmail implements IReturnVoid, IGet
     public createResponse() {}
 }
 
+// @Route("/todos", "GET")
+export class QueryTodos extends QueryData<Todo> implements IReturn<QueryResponse<Todo>>
+{
+    public id?: number;
+    public ids?: number[];
+    public textContains?: string;
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string; };
+
+    public constructor(init?: Partial<QueryTodos>) { super(init); (Object as any).assign(this, init); }
+    public getTypeName() { return 'QueryTodos'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() { return new QueryResponse<Todo>(); }
+}
+
+// @Route("/todos", "POST")
+export class CreateTodo implements IReturn<Todo>, IPost
+{
+    // @Validate(Validator="NotEmpty")
+    public text: string;
+
+    public constructor(init?: Partial<CreateTodo>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'CreateTodo'; }
+    public getMethod() { return 'POST'; }
+    public createResponse() { return new Todo(); }
+}
+
+// @Route("/todos/{Id}", "PUT")
+export class UpdateTodo implements IReturn<Todo>, IPut
+{
+    public id: number;
+    // @Validate(Validator="NotEmpty")
+    public text: string;
+
+    public isFinished: boolean;
+
+    public constructor(init?: Partial<UpdateTodo>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UpdateTodo'; }
+    public getMethod() { return 'PUT'; }
+    public createResponse() { return new Todo(); }
+}
+
+// @Route("/todos/{Id}", "DELETE")
+export class DeleteTodo implements IReturnVoid, IDelete
+{
+    public id: number;
+
+    public constructor(init?: Partial<DeleteTodo>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'DeleteTodo'; }
+    public getMethod() { return 'DELETE'; }
+    public createResponse() {}
+}
+
+// @Route("/todos", "DELETE")
+export class DeleteTodos implements IReturnVoid, IDelete
+{
+    public ids: number[];
+
+    public constructor(init?: Partial<DeleteTodos>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'DeleteTodos'; }
+    public getMethod() { return 'DELETE'; }
+    public createResponse() {}
+}
+
 /** @description Sign In */
 // @Route("/auth", "GET,POST")
 // @Route("/auth/{provider}", "POST")
@@ -671,6 +642,26 @@ export class Authenticate implements IReturn<AuthenticateResponse>, IPost
 export class QueryBookings extends QueryDb<Booking> implements IReturn<QueryResponse<Booking>>
 {
     public id?: number;
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<QueryBookings>) { super(init); (Object as any).assign(this, init); }
     public getTypeName() { return 'QueryBookings'; }
@@ -683,24 +674,31 @@ export class QueryBookings extends QueryDb<Booking> implements IReturn<QueryResp
 export class QueryCoupons extends QueryDb<Coupon> implements IReturn<QueryResponse<Coupon>>
 {
     public id?: string;
+    // @DataMember(Order=1)
+    public skip?: number;
+
+    // @DataMember(Order=2)
+    public take?: number;
+
+    // @DataMember(Order=3)
+    public orderBy: string;
+
+    // @DataMember(Order=4)
+    public orderByDesc: string;
+
+    // @DataMember(Order=5)
+    public include: string;
+
+    // @DataMember(Order=6)
+    public fields: string;
+
+    // @DataMember(Order=7)
+    public meta: { [index: string]: string; };
 
     public constructor(init?: Partial<QueryCoupons>) { super(init); (Object as any).assign(this, init); }
     public getTypeName() { return 'QueryCoupons'; }
     public getMethod() { return 'GET'; }
     public createResponse() { return new QueryResponse<Coupon>(); }
-}
-
-/** @description Danh sách/Chi tiết page */
-// @Route("/pages", "GET")
-// @Route("/pages/{Id}", "GET")
-export class QueryPages extends QueryDb<Page> implements IReturn<QueryResponse<Page>>
-{
-    public id?: number;
-
-    public constructor(init?: Partial<QueryPages>) { super(init); (Object as any).assign(this, init); }
-    public getTypeName() { return 'QueryPages'; }
-    public getMethod() { return 'GET'; }
-    public createResponse() { return new QueryResponse<Page>(); }
 }
 
 /** @description Create a new Booking */
@@ -822,23 +820,5 @@ export class DeleteCoupon implements IReturnVoid, IDeleteDb<Coupon>
     public getTypeName() { return 'DeleteCoupon'; }
     public getMethod() { return 'DELETE'; }
     public createResponse() {}
-}
-
-/** @description Tạo mới page */
-// @Route("/pages", "POST")
-export class CreatePage implements IReturn<IdResponse>, ICreateDb<Page>
-{
-    public title: string;
-    public permalink: string;
-    public shortDescription: string;
-    public content: string;
-    public seoMeta: string;
-    public status: PageStatus;
-    public thumbnailImage: string;
-
-    public constructor(init?: Partial<CreatePage>) { (Object as any).assign(this, init); }
-    public getTypeName() { return 'CreatePage'; }
-    public getMethod() { return 'POST'; }
-    public createResponse() { return new IdResponse(); }
 }
 
