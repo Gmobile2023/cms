@@ -103,10 +103,9 @@ const UsersManager = () => {
                 password: params.password,
             };
             const response = await CreateUser(user);
-            console.log(response);
+            showMessage("Người dùng đã được thêm thành công!.");
         }
 
-        showMessage("User has been saved successfully.");
         setAddUserModal(false);
     };
 
@@ -122,7 +121,7 @@ const UsersManager = () => {
 
     const deleteUser = (user: any = null) => {
         setFilteredItems(filteredItems.filter((d: any) => d.id !== user.id));
-        showMessage("User has been deleted successfully.");
+        showMessage("Người dùng đã được xoá thành công!");
     };
 
     const showMessage = (msg = "", type = "success") => {
@@ -268,20 +267,50 @@ const UsersManager = () => {
                                             <IconX />
                                         </button>
                                         <div className="text-lg font-medium bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">
-                                            {params.id
-                                                ? "Edit User"
-                                                : "Add User"}
+                                            {!params.id
+                                                ? "Thêm người dùng"
+                                                : "Sửa người dùng"}
                                         </div>
                                         <div className="p-5">
                                             <form>
                                                 <div className="mb-5">
+                                                    <label htmlFor="lastName">
+                                                        Họ
+                                                    </label>
+                                                    <input
+                                                        id="lastName"
+                                                        type="text"
+                                                        placeholder="Nhập họ"
+                                                        className="form-input"
+                                                        value={params.lastName}
+                                                        onChange={(e) =>
+                                                            changeValue(e)
+                                                        }
+                                                    />
+                                                </div>
+                                                <div className="mb-5">
+                                                    <label htmlFor="firstName">
+                                                        Tên
+                                                    </label>
+                                                    <input
+                                                        id="firstName"
+                                                        type="text"
+                                                        placeholder="Nhập tên"
+                                                        className="form-input"
+                                                        value={params.firstName}
+                                                        onChange={(e) =>
+                                                            changeValue(e)
+                                                        }
+                                                    />
+                                                </div>
+                                                <div className="mb-5">
                                                     <label htmlFor="userName">
-                                                        User Name
+                                                        Tên người dùng
                                                     </label>
                                                     <input
                                                         id="userName"
                                                         type="text"
-                                                        placeholder="Enter User Name"
+                                                        placeholder="Nhập tên người dùng"
                                                         className="form-input"
                                                         value={params.userName}
                                                         onChange={(e) =>
@@ -296,7 +325,7 @@ const UsersManager = () => {
                                                     <input
                                                         id="email"
                                                         type="email"
-                                                        placeholder="Enter Email"
+                                                        placeholder="Nhập email"
                                                         className="form-input"
                                                         value={params.email}
                                                         onChange={(e) =>
@@ -304,7 +333,27 @@ const UsersManager = () => {
                                                         }
                                                     />
                                                 </div>
-                                                <div className="mb-5">
+                                                {!params.id && (
+                                                    <div className="mb-5">
+                                                        <label htmlFor="password">
+                                                            Mật khẩu
+                                                        </label>
+                                                        <input
+                                                            id="password"
+                                                            type="password"
+                                                            placeholder="Nhập mật khẩu"
+                                                            className="form-input"
+                                                            value={
+                                                                params.password
+                                                            }
+                                                            onChange={(e) =>
+                                                                changeValue(e)
+                                                            }
+                                                        />
+                                                    </div>
+                                                )}
+
+                                                {/* <div className="mb-5">
                                                     <label htmlFor="email">
                                                         Password
                                                     </label>
@@ -318,7 +367,7 @@ const UsersManager = () => {
                                                             changeValue(e)
                                                         }
                                                     />
-                                                </div>
+                                                </div> */}
                                                 <div className="flex justify-end items-center mt-8">
                                                     <button
                                                         type="button"
@@ -329,7 +378,7 @@ const UsersManager = () => {
                                                             )
                                                         }
                                                     >
-                                                        Cancel
+                                                        Huỷ
                                                     </button>
                                                     <button
                                                         type="button"
@@ -337,8 +386,8 @@ const UsersManager = () => {
                                                         onClick={saveUser}
                                                     >
                                                         {params.id
-                                                            ? "Update"
-                                                            : "Add"}
+                                                            ? "Cập nhật"
+                                                            : "Thêm mới"}
                                                     </button>
                                                 </div>
                                             </form>
