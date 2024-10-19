@@ -112,11 +112,11 @@ const Pages = () => {
 
     const getBadge = (status: string) => {
         switch (status) {
-            case 'Published':
+            case 1:
                 return <span className="badge bg-success w-full">Đã xuất bản</span>;
-            case 'Archived':
+            case 2:
                 return <span className="badge bg-danger w-full">Đã xoá</span>;
-            case 'Draft':
+            case 0:
                 return <span className="badge bg-secondary w-full">Nháp</span>;
             // Add more cases as needed
             default:

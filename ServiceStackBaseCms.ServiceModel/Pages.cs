@@ -14,15 +14,9 @@ public class Page : AuditBase
     public string ShortDescription { get; set; }
     public string Content { get; set; }
     public string SeoMeta { get; set; }
-    public PageStatus Status { get; set; }
+    [Required]
+    public int Status { get; set; }
     public string ThumbnailImage { get; set; }
-}
-
-public enum PageStatus
-{
-    Draft = 0,
-    Published = 1,
-    Archived = 2,
 }
 
 [Tag("pages"), Description("Danh sách/Chi tiết page")]
@@ -36,7 +30,6 @@ public class QueryPages : QueryDb<Page>
 
 [Tag("pages"), Description("Tạo mới page")]
 [Route("/pages", "POST")]
-[ValidateHasRole(Roles.Manager)]
 [AutoApply(Behavior.AuditCreate)]
 public class CreatePage : ICreateDb<Page>, IReturn<IdResponse>
 {
@@ -47,6 +40,6 @@ public class CreatePage : ICreateDb<Page>, IReturn<IdResponse>
     [Input(Type = "textarea")]
     public required string Content { get; set; }
     public string SeoMeta { get; set; }
-    public PageStatus Status { get; set; }
+    public int Status { get; set; }
     public string ThumbnailImage { get; set; }
 }

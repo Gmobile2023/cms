@@ -1,99 +1,132 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setPageTitle } from "../../store/slices/themeConfigSlice";
-import IconX from '@/components/Icon/IconX';
-import IconSave from '@/components/Icon/IconSave';
-import IconSend from '@/components/Icon/IconSend';
-import IconEye from '@/components/Icon/IconEye';
-import IconDownload from '@/components/Icon/IconDownload';
-import { SelectInput, TextInput } from '@/components/Form';
+import { ErrorSummary, SelectInput, TextAreaInput, TextInput } from '@/components/Form';
+import { serializeToObject } from '@servicestack/client';
+import { createNewPage } from '@/services/pageService';
 
 const NewPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate()
+
     useEffect(() => {
         dispatch(setPageTitle('Thêm mới'));
     });
 
-    const [items, setItems] = useState<any>([
-        {
-            id: 1,
-            title: '',
-            description: '',
-            rate: 0,
-            quantity: 0,
-            amount: 0,
-        },
-    ]);
+    // State for form inputs
+    const [formState, setFormState] = useState({
+        title: '',
+        permalink: '',
+        short_description: '',
+        content: '',
+        status: 0,
+    });
 
-    const addItem = () => {
-        let maxId = 0;
-        maxId = items?.length ? items.reduce((max: number, character: any) => (character.id > max ? character.id : max), items[0].id) : 0;
+    const onSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
-        setItems([...items, { id: maxId + 1, title: '', description: '', rate: 0, quantity: 0, amount: 0 }]);
-    };
+        const formData = serializeToObject(e.currentTarget);
+        formData.status = formData.status * 1;
+        const result = await createNewPage(formData);
 
-    const removeItem = (item: any = null) => {
-        setItems(items.filter((d: any) => d.id !== item.id));
-    };
-
-    const changeQuantityPrice = (type: string, value: string, id: number) => {
-        const list = items;
-        const item = list.find((d: any) => d.id === id);
-        if (type === 'quantity') {
-            item.quantity = Number(value);
+        if (result.success) {
+            navigate('/pages')
+        } else {
+            console.log(result)
         }
-        if (type === 'price') {
-            item.amount = Number(value);
-        }
-        setItems([...list]);
     };
 
-    return (
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { id, value } = e.target;
+        setFormState((prevState) => ({
+            ...prevState,
+            [id]: value,
+        }));
+    };
+
+    return (<form onSubmit={onSubmit}>
         <div className="flex xl:flex-row flex-col gap-2.5">
             <div className="panel px-0 flex-1 py-6 ltr:xl:mr-6 rtl:xl:ml-6">
-            <div className="mt-8 px-4">
+                <ErrorSummary except="" />
+                <div className="px-4">
+                    <label className="required" htmlFor="title">Tiêu đề</label>
                     <TextInput
                         id="title"
-                        help="Your first and last name"
-                        autoComplete="title"
-                        label="Tiêu đề"
+                        autoComplete="off"
+                        label=""
                         className="form-input flex-1"
+                        placeholder="Nhập Tiêu đề"
+                        value={formState.title}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className="mt-4 px-4">
+                    <label className="required" htmlFor="permalink">Permalink</label>
+                    <TextInput
+                        id="permalink"
+                        autoComplete="off"
+                        label=""
+                        className="form-input flex-1"
+                        placeholder="Permalink"
+                        value={formState.permalink}
+                        onChange={handleInputChange}
                     />
                 </div>
                 <div className="mt-8 px-4">
-                    <label htmlFor="notes">Notes</label>
-                    <textarea id="notes" name="notes" className="form-textarea min-h-[130px]" placeholder="Notes...."></textarea>
+                    <label htmlFor="short_description">Mô tả ngắn</label>
+                    <TextAreaInput 
+                        id="short_description" 
+                        className="form-textarea min-h-[70px]" 
+                        label="" 
+                        placeholder="Nhập Mô tả ngắn"
+                        value={formState.short_description}
+                        onChange={handleInputChange}
+                    ></TextAreaInput>
+                </div>
+                <div className="mt-8 px-4">
+                    <label className="required" htmlFor="content">Nội dung</label>
+                    <TextAreaInput
+                        id="content"
+                        className="form-textarea min-h-[150px]"
+                        label=""
+                        placeholder="Nhập Nội dung"
+                        value={formState.content}
+                        onChange={handleInputChange}
+                    ></TextAreaInput>
                 </div>
             </div>
             <div className="xl:w-96 w-full xl:mt-0 mt-6">
                 <div className="panel mb-5">
-                    <div className="mt-4">
+                    <div className="">
                         <label className="required" htmlFor="status">Trạng thái</label>
                         <SelectInput
                             id="status"
                             label=""
                             className="form-select"
+                            value={formState.status}
                             options={{
                                 0: "Nháp",
                                 1: "Xuất bản",
                             }}
+                            onChange={handleInputChange}
                         ></SelectInput>
                     </div>
                 </div>
                 <div className="panel">
                     <div className="grid xl:grid-cols-1 lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-4">
-                        <button type="button" className="btn btn-success w-full gap-2">
+                        <button type="submit" className="btn btn-success w-full gap-2">
                             Lưu & Xuất bản
                         </button>
 
-                        <Link to="/apps/invoice/preview" className="btn btn-primary w-full gap-2">
-                            Lưu bản nháp
+                        <Link to="/pages" className="btn btn-primary w-full gap-2">
+                            Quay lại
                         </Link>
                     </div>
                 </div>
             </div>
         </div>
+    </form>
     );
 };
 
