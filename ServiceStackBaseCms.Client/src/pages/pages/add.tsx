@@ -5,10 +5,13 @@ import { setPageTitle } from "../../store/slices/themeConfigSlice";
 import { ErrorSummary, SelectInput, TextAreaInput, TextInput } from '@/components/Form';
 import { serializeToObject } from '@servicestack/client';
 import { createNewPage } from '@/services/pageService';
+import { useClient } from '@/gateway';
+import { Page } from '@/dtos';
 
 const NewPage = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const client = useClient();
 
     useEffect(() => {
         dispatch(setPageTitle('Thêm mới'));
@@ -26,9 +29,23 @@ const NewPage = () => {
     const onSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const formData = serializeToObject(e.currentTarget);
-        formData.status = formData.status * 1;
-        const result = await createNewPage(formData);
+        const { title, permalink, short_description, content, status } = serializeToObject(e.currentTarget);
+
+        if (!title) {
+            client.setError({
+                fieldName: "title",
+                message: "Vui lòng nhập tiêu đề",
+            });
+            return;
+        }
+
+        const result = await createNewPage(new Page({
+            title: title,
+            permalink: permalink,
+            shortDescription: short_description,
+            content: content,
+            status: status * 1
+        }));
 
         if (result.success) {
             navigate('/pages')
@@ -41,14 +58,14 @@ const NewPage = () => {
         const { id, value } = e.target;
         setFormState((prevState) => ({
             ...prevState,
-            [id]: value,
+            [id]: id === 'status' ? Number(value) : value,
         }));
-    };
+    };    
 
     return (<form onSubmit={onSubmit}>
         <div className="flex xl:flex-row flex-col gap-2.5">
             <div className="panel px-0 flex-1 py-6 ltr:xl:mr-6 rtl:xl:ml-6">
-                <ErrorSummary except="" />
+                <ErrorSummary except="title, permalink, content" />
                 <div className="px-4">
                     <label className="required" htmlFor="title">Tiêu đề</label>
                     <TextInput

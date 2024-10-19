@@ -11,11 +11,12 @@ import { ValidateAuth } from "@/useAuth";
 import { debounce } from "lodash";
 import moment from "moment";
 import { Loading } from "@/components/Form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Pages = () => {
     const dispatch = useDispatch();
     const isFetchingRef = useRef(false); // Use ref to track fetching state
+    const navigate = useNavigate();
 
     useEffect(() => {
         dispatch(setPageTitle("Quản lý trang"));
@@ -107,7 +108,7 @@ const Pages = () => {
     };
 
     const handleEdit = (record: any) => {
-        console.log("Edit record:", record);
+        navigate('/pages/edit');
     };
 
     const handleDelete = (record: any) => {

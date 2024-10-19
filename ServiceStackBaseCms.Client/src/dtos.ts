@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-19 00:54:22
+Date: 2024-10-19 08:46:06
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -164,13 +164,6 @@ export class Booking extends AuditBase
     public constructor(init?: Partial<Booking>) { super(init); (Object as any).assign(this, init); }
 }
 
-export enum PageStatus
-{
-    Draft = 'Draft',
-    Published = 'Published',
-    Archived = 'Archived',
-}
-
 /** @description Pages Management */
 export class Page extends AuditBase
 {
@@ -181,7 +174,7 @@ export class Page extends AuditBase
     public content: string;
     public seoMeta: string;
     // @Required()
-    public status: PageStatus;
+    public status: number;
 
     public thumbnailImage: string;
 
@@ -833,7 +826,7 @@ export class CreatePage implements IReturn<IdResponse>, ICreateDb<Page>
     public shortDescription: string;
     public content: string;
     public seoMeta: string;
-    public status: PageStatus;
+    public status: number;
     public thumbnailImage: string;
 
     public constructor(init?: Partial<CreatePage>) { (Object as any).assign(this, init); }
