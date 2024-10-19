@@ -18,7 +18,7 @@ const EditPage = () => {
         dispatch(setPageTitle('Thêm mới'));
     });
 
-    // State for form inputs
+    // State for form inputs.
     const [formState, setFormState] = useState({
         title: '',
         permalink: '',
