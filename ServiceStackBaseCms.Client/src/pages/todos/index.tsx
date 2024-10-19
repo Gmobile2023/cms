@@ -1,5 +1,5 @@
 import { useEffect, useState, Fragment } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setPageTitle } from "../../store/slices/themeConfigSlice";
 import { ResponseStatus } from "@servicestack/client";
 import { client } from "@/gateway";
@@ -9,14 +9,10 @@ import { AddTodo } from "@/components/todos/AddTodo";
 import { Dialog, Transition } from "@headlessui/react";
 import IconX from "../../components/Icon/IconX";
 import { SelectInput } from "@/components/Form";
-import { RootState } from "@/store/root";
-import { deleteTodo, updateTodo } from "@/services/todoService";
-
 // import { ValidateAuth } from "@/useAuth";
 
 const Todos = () => {
     const dispatch = useDispatch();
-    const todo = useSelector((state: RootState) => state.todos);
 
     useEffect(() => {
         dispatch(setPageTitle("Todos"));
@@ -26,7 +22,7 @@ const Todos = () => {
     const [todos, setTodos] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     // const [initialRecords, setInitialRecords] = useState<any[]>([]);
-    const [isOpenModal, setIsOpenModal] = useState<any>(false);
+    const [addContactModal, setAddContactModal] = useState<any>(false);
     const [defaultParams] = useState({
         id: null,
         text: "",
@@ -43,9 +39,8 @@ const Todos = () => {
             [field]: value,
         });
     };
-    // const changeValue = (value: any, field: keyof typeof todo) => {
-    //     dispatch(updateTodo({ field, value }));
-    // };
+
+    const saveTodo = () => {};
 
     const fetchTodos = async () => {
         setLoading(true);
@@ -81,27 +76,8 @@ const Todos = () => {
             let json1 = JSON.parse(JSON.stringify(todo));
             setParams(json1);
         }
-        setIsOpenModal(true);
+        setAddContactModal(true);
     };
-
-    const handleUpdateTodo = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const response = await updateTodo(params);
-
-        if (response) {
-            console.log("Todo updated successfully:", response);
-            setIsOpenModal(false);
-
-            setParams(defaultParams);
-            fetchTodos();
-        } else {
-            // Handle error
-            setError(response || "Failed to create todo");
-            console.error("Error creating todo:", response);
-        }
-    };
-
-    const handleDeleteTodo = async (id) => {};
 
     if (loading) {
         return <div>Loading...</div>;
@@ -174,8 +150,8 @@ const Todos = () => {
                                                         type="button"
                                                         className="btn btn-sm btn-outline-danger"
                                                         onClick={() =>
-                                                            handleDeleteTodo(
-                                                                todo.id
+                                                            console.log(
+                                                                "Delete"
                                                             )
                                                         }
                                                     >
@@ -190,11 +166,11 @@ const Todos = () => {
                         </table>
                     </div>
                 </div>
-                <Transition appear show={isOpenModal} as={Fragment}>
+                <Transition appear show={addContactModal} as={Fragment}>
                     <Dialog
                         as="div"
-                        open={isOpenModal}
-                        onClose={() => setIsOpenModal(false)}
+                        open={addContactModal}
+                        onClose={() => setAddContactModal(false)}
                         className="relative z-[51]"
                     >
                         <Transition.Child
@@ -223,7 +199,7 @@ const Todos = () => {
                                         <button
                                             type="button"
                                             onClick={() =>
-                                                setIsOpenModal(false)
+                                                setAddContactModal(false)
                                             }
                                             className="absolute top-4 ltr:right-4 rtl:left-4 text-gray-400 hover:text-gray-800 dark:hover:text-gray-600 outline-none"
                                         >
@@ -286,7 +262,7 @@ const Todos = () => {
                                                         type="button"
                                                         className="btn btn-outline-danger"
                                                         onClick={() =>
-                                                            setIsOpenModal(
+                                                            setAddContactModal(
                                                                 false
                                                             )
                                                         }
@@ -296,9 +272,7 @@ const Todos = () => {
                                                     <button
                                                         type="button"
                                                         className="btn btn-primary ltr:ml-4 rtl:mr-4"
-                                                        onClick={
-                                                            handleUpdateTodo
-                                                        }
+                                                        onClick={saveTodo}
                                                     >
                                                         {params.id
                                                             ? "Update"
