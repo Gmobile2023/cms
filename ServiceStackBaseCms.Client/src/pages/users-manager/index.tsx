@@ -9,6 +9,7 @@ import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
 import { CreateUser, fetchAllUser, UpdateUser } from "@/services/usersService";
+import { getRoles } from "@/services/rolesService";
 
 const UsersManager = () => {
     const dispatch = useDispatch();
@@ -37,14 +38,36 @@ const UsersManager = () => {
         }
     };
 
+    const getAllRoles = async () => {
+        try {
+            const response = await getRoles();
+            if (response) {
+                // setUsers(response.response.items || []);
+                // setInitialRecords(api.response.results || []);
+                console.log(response);
+            } else {
+                // setError(api.error);
+                // console.log(error);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchUsers();
+        getAllRoles();
     }, []);
 
     const [addUserModal, setAddUserModal] = useState<any>(false);
 
     const [defaultParams] = useState({
         id: null,
+        firstName: "",
+        lastName: "",
         userName: "",
         email: "",
         password: "",
@@ -90,22 +113,33 @@ const UsersManager = () => {
         if (params.id) {
             // Update user
             let user = {
+                id: params.id,
+                firstName: params.firstName,
+                lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 // password: params.password,
             };
             const response = await UpdateUser(user);
-            console.log(response);
+            if (response.success) {
+                showMessage("Cập nhật người dùng thành công!.");
+                fetchUsers();
+            }
         } else {
             let user = {
+                firstName: params.firstName,
+                lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 password: params.password,
+                roles: ["Admin"],
             };
             const response = await CreateUser(user);
-            showMessage("Người dùng đã được thêm thành công!.");
+            if (response.success) {
+                showMessage("Người dùng đã được thêm thành công!.");
+                fetchUsers();
+            }
         }
-
         setAddUserModal(false);
     };
 
