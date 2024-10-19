@@ -20,6 +20,7 @@ public class ManagerUserRepository : IManagerUserRepository
     public async Task<bool> CreateUser(CreateUserRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
+        using var trans = db.OpenTransaction();
         try
         {
             var user = request.ConvertTo<ApplicationUser>();
@@ -29,6 +30,7 @@ public class ManagerUserRepository : IManagerUserRepository
                 var role = await _userManager.AddToRolesAsync(user, request.Roles);
                 if (role.Succeeded)
                 {
+                    trans.Commit();
                     return true;
                 }
                 else
@@ -36,10 +38,15 @@ public class ManagerUserRepository : IManagerUserRepository
                     return false;
                 }
             }
-            return true;
+            else
+            {
+                return false;
+            }
+
         }
         catch (Exception e)
         {
+            trans.Rollback();
             return false;
         }
     }
@@ -49,10 +56,9 @@ public class ManagerUserRepository : IManagerUserRepository
         using var db =  _connectionFactory.OpenDbConnection();
         try
         {
-            var user = request.ConvertTo<ApplicationUser>();
-           
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            var user = request.ConvertTo<Users>();
+            var result = await db.UpdateAsync(user);
+            if (result != 0)
             {
                 var listRole = await _userManager.GetRolesAsync(user);
                 if (request.Roles != null && listRole != null)
@@ -105,7 +111,27 @@ public class ManagerUserRepository : IManagerUserRepository
             };
         }
     }
-    
+
+    public Task<PagedResultDto<UserClaims>> GetUserClaims(UserClaimsRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> CreateUserClaim(CreateUserClaimRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UpdateUserClaim(UpdateUserClaimRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserClaims> GetUserClaim(UserClaimRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<UserDto> GetUser(string  id)
     {
         using var db =  _connectionFactory.OpenDbConnection();

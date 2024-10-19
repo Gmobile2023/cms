@@ -1,7 +1,7 @@
-﻿using ServiceStackBaseCms.Domain.Entities;
+﻿using ServiceStack.Auth;
+using ServiceStackBaseCms.Domain.Entities;
 using ServiceStackBaseCms.ServiceModel;
 using Roles = ServiceStackBaseCms.Domain.Entities.Roles;
-
 namespace ServiceStackBaseCms.Domain.Repositories;
 
 public interface IManagerUserRepository
@@ -11,5 +11,14 @@ public interface IManagerUserRepository
     Task<UserDto> GetUser(string id);
     Task<PagedResultDto<UserDto>> GetUsers(UsersRequest request);
     Task<PagedResultDto<Roles>> GetRoles(RolesRequest request);
+
+    Task<PagedResultDto<UserClaims>> GetUserClaims(UserClaimsRequest request);
+
+    Task<bool> CreateUserClaim(CreateUserClaimRequest request);
+
+    Task<bool> UpdateUserClaim(UpdateUserClaimRequest request);
+
+    Task<UserClaims> GetUserClaim(UserClaimRequest request);
+
 
 }
