@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-18 14:42:29
+Date: 2024-10-19 00:54:22
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -180,7 +180,9 @@ export class Page extends AuditBase
     public shortDescription: string;
     public content: string;
     public seoMeta: string;
+    // @Required()
     public status: PageStatus;
+
     public thumbnailImage: string;
 
     public constructor(init?: Partial<Page>) { super(init); (Object as any).assign(this, init); }
@@ -479,6 +481,7 @@ export class CreateUserRequest
 // @Route("/user", "PUT")
 export class UpdateUserRequest
 {
+    public id?: string;
     public firstName?: string;
     public lastName?: string;
     public displayName?: string;
@@ -823,7 +826,6 @@ export class DeleteCoupon implements IReturnVoid, IDeleteDb<Coupon>
 
 /** @description Tạo mới page */
 // @Route("/pages", "POST")
-// @ValidateRequest(Validator="HasRole(`Manager`)")
 export class CreatePage implements IReturn<IdResponse>, ICreateDb<Page>
 {
     public title: string;
