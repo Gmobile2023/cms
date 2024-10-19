@@ -9,6 +9,8 @@ import Signup from "@/pages/authentication/signup";
 const Forbidden = lazy(() => import("../pages/forbidden"));
 const Signin = lazy(() => import("../pages/authentication/signin"));
 const Pages = lazy(() => import("../pages/pages"));
+const NewPage = lazy(() => import("../pages/pages/add"));
+const EditPage = lazy(() => import("../pages/pages/edit"));
 
 const routes = [
     {
@@ -59,6 +61,16 @@ const routes = [
         path: "/pages",
         // @ts-ignore
         element: <Pages />,
+    },
+    {
+        path: "/pages/new",
+        // @ts-ignore
+        element: <NewPage />,
+    },
+    {
+        path: "/pages/edit",
+        // @ts-ignore
+        element: <EditPage />,
     },
 ];
 
