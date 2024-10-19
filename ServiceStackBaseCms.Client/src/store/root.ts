@@ -2,12 +2,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice'
 import themeConfigSlice from './slices/themeConfigSlice'
-import todoSlice from './slices/todoSlice'
+import pageSlice from './slices/pageSlice'
 
 const rootReducer = combineReducers({
     auth: authReducer,
     themeConfig: themeConfigSlice,
-    todos: todoSlice
+    pages: pageSlice
 });
 
 // Create and configure the Redux store

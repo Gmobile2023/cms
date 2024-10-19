@@ -1,6 +1,6 @@
 ﻿namespace ServiceStackBaseCms.Domain.Entities;
 
-public class User
+public class Users : ApplicationUser
 {
     
 }
