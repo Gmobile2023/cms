@@ -4,12 +4,12 @@ import { setPageTitle } from "../../store/slices/themeConfigSlice";
 import { ResponseStatus } from "@servicestack/client";
 import { client } from "@/gateway";
 import { QueryPages } from "@/dtos";
-import { Menu, Button } from '@mantine/core';
-import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import sortBy from 'lodash/sortBy';
+import { Menu, Button } from "@mantine/core";
+import { DataTable, DataTableSortStatus } from "mantine-datatable";
+import sortBy from "lodash/sortBy";
 import { ValidateAuth } from "@/useAuth";
-import { debounce } from 'lodash';
-import moment from 'moment';
+import { debounce } from "lodash";
+import moment from "moment";
 import { Loading } from "@/components/Form";
 import { Link } from "react-router-dom";
 
@@ -25,10 +25,10 @@ const Pages = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
     const [recordsData, setRecordsData] = useState<any[]>([]);
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState("");
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-        columnAccessor: 'id',
-        direction: 'asc',
+        columnAccessor: "id",
+        direction: "asc",
     });
     const [totalRecords, setTotalRecords] = useState(0);
     const [error, setError] = useState<ResponseStatus | undefined>();
@@ -45,10 +45,12 @@ const Pages = () => {
             const skip = calculateSkip();
             const take = pageSize;
 
-            const api = await client.api(new QueryPages({
-                skip: skip,
-                take: take
-            }));
+            const api = await client.api(
+                new QueryPages({
+                    skip: skip,
+                    take: take,
+                })
+            );
 
             if (api.succeeded && api.response) {
                 setRecordsData(api.response.results || []);
@@ -87,11 +89,13 @@ const Pages = () => {
     // Handle sorting
     useEffect(() => {
         const data = sortBy(recordsData, sortStatus.columnAccessor);
-        setRecordsData(sortStatus.direction === 'desc' ? data.reverse() : data);
+        setRecordsData(sortStatus.direction === "desc" ? data.reverse() : data);
     }, [sortStatus]);
 
     if (loading) {
-        return <Loading className="py-2 pl-4" text="Vui lòng chờ một chút ..." />;
+        return (
+            <Loading className="py-2 pl-4" text="Vui lòng chờ một chút ..." />
+        );
     }
 
     if (error) {
@@ -113,14 +117,18 @@ const Pages = () => {
     const getBadge = (status: string) => {
         switch (status) {
             case 1:
-                return <span className="badge bg-success w-full">Đã xuất bản</span>;
+                return (
+                    <span className="badge bg-success w-full">Đã xuất bản</span>
+                );
             case 2:
                 return <span className="badge bg-danger w-full">Đã xoá</span>;
             case 0:
                 return <span className="badge bg-secondary w-full">Nháp</span>;
             // Add more cases as needed
             default:
-                return <span className="badge bg-secondary w-full">Unknown</span>;
+                return (
+                    <span className="badge bg-secondary w-full">Unknown</span>
+                );
         }
     };
 
@@ -152,34 +160,64 @@ const Pages = () => {
                         records={recordsData}
                         columns={[
                             {
-                                accessor: 'action',
-                                title: 'Hành động',
+                                accessor: "action",
+                                title: "Hành động",
                                 render: (record) => (
                                     <Menu>
                                         <Menu.Target>
                                             <Button size="xs">Hành động</Button>
                                         </Menu.Target>
                                         <Menu.Dropdown>
-                                            <Menu.Item onClick={() => handleView(record)}>Xem chi tiết</Menu.Item>
-                                            <Menu.Item onClick={() => handleEdit(record)}>Chỉnh sửa</Menu.Item>
-                                            <Menu.Item color="red" onClick={() => handleDelete(record)}>Xoá</Menu.Item>
+                                            <Menu.Item
+                                                onClick={() =>
+                                                    handleView(record)
+                                                }
+                                            >
+                                                Xem chi tiết
+                                            </Menu.Item>
+                                            <Menu.Item
+                                                onClick={() =>
+                                                    handleEdit(record)
+                                                }
+                                            >
+                                                Chỉnh sửa
+                                            </Menu.Item>
+                                            <Menu.Item
+                                                color="red"
+                                                onClick={() =>
+                                                    handleDelete(record)
+                                                }
+                                            >
+                                                Xoá
+                                            </Menu.Item>
                                         </Menu.Dropdown>
                                     </Menu>
                                 ),
                             },
-                            { accessor: 'title', sortable: true, title: 'Tiêu đề' },
                             {
-                                accessor: 'status',
+                                accessor: "title",
                                 sortable: true,
-                                title: 'Trạng thái',
+                                title: "Tiêu đề",
+                            },
+                            {
+                                accessor: "status",
+                                sortable: true,
+                                title: "Trạng thái",
                                 render: (record) => getBadge(record.status), // Render badge
                             },
-                            { accessor: 'createdBy', sortable: true, title: 'Người tạo' },
                             {
-                                accessor: 'createdDate',
+                                accessor: "createdBy",
                                 sortable: true,
-                                title: 'Ngày tạo',
-                                render: (record) => moment(record.createdDate).format('DD/MM/YYYY HH:mm'), // Format date
+                                title: "Người tạo",
+                            },
+                            {
+                                accessor: "createdDate",
+                                sortable: true,
+                                title: "Ngày tạo",
+                                render: (record) =>
+                                    moment(record.createdDate).format(
+                                        "DD/MM/YYYY HH:mm"
+                                    ), // Format date
                             },
                         ]}
                         highlightOnHover
@@ -192,7 +230,9 @@ const Pages = () => {
                         sortStatus={sortStatus}
                         onSortStatusChange={setSortStatus}
                         minHeight={200}
-                        paginationText={({ from, to, totalRecords }) => `Hiển thị ${from} - ${to} / ${totalRecords} kết quả`}
+                        paginationText={({ from, to, totalRecords }) =>
+                            `Hiển thị ${from} - ${to} / ${totalRecords} kết quả`
+                        }
                     />
                 </div>
             </div>
