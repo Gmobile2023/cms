@@ -1,6 +1,5 @@
 import { CreateUserRequest, UpdateUserRequest, UsersRequest } from "@/dtos";
 import { client } from "@/gateway";
-import { AnyARecord } from "dns";
 
 export const fetchAllUser = async () => {
     try {
@@ -62,11 +61,11 @@ export const UpdateUser = async (data: any) => {
         } else {
             return {
                 success: false,
-                error: apiResponse.error || "Failed to create user",
+                error: apiResponse.error || "Failed to update user",
             };
         }
     } catch (err) {
-        console.error("Error create user:", err);
+        console.error("Error update user:", err);
         return {
             success: false,
             error: (err as Error).message || "An unknown error occurred",
