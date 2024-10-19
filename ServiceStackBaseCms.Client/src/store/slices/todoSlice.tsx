@@ -15,8 +15,9 @@ const todoSlice = createSlice({
     name: 'todo',
     initialState,
     reducers: {
-        updateTodo: (state, action: PayloadAction<{ field: keyof TodoState, value: string | boolean }>) => {
+        updateTodo: (state, action: PayloadAction<{ field: keyof TodoState, value: any }>) => {
             const { field, value } = action.payload;
+            state[field] = value;
         },
         resetTodo: (state) => {
             state.text = '';

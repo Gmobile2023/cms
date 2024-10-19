@@ -1,27 +1,22 @@
 import { lazy } from "react";
 import SignupConfirm from "@/pages/authentication/signup-confirm";
 import Dashboard from "@/pages/dashboard";
+import Todos from "@/pages/todos";
 import UsersManager from "@/pages/users-manager";
 import Roles from "@/pages/roles";
 import Permission from "@/pages/permission";
 import Signup from "@/pages/authentication/signup";
-
-const Forbidden = lazy(() => import("../pages/forbidden"));
 const Signin = lazy(() => import("../pages/authentication/signin"));
-const Pages = lazy(() => import("../pages/pages"));
-const NewPage = lazy(() => import("../pages/pages/add"));
-const EditPage = lazy(() => import("../pages/pages/edit"));
 
 const routes = [
+    // dashboard
     {
         path: "/",
-        // @ts-ignore
         element: <Dashboard />,
     },
     {
-        path: "/forbidden",
-        element: <Forbidden />,
-        layout: "blank",
+        path: "/todos",
+        element: <Todos />,
     },
     {
         path: "/signin",
@@ -41,12 +36,14 @@ const routes = [
 
     {
         path: "/dashboard",
-        // @ts-ignore
         element: <Dashboard />,
     },
     {
+        path: "/todos",
+        element: <Todos />,
+    },
+    {
         path: "/users-manager",
-        // @ts-ignore
         element: <UsersManager />,
     },
     {
@@ -56,21 +53,6 @@ const routes = [
     {
         path: "/permission-manager",
         element: <Permission />,
-    },
-    {
-        path: "/pages",
-        // @ts-ignore
-        element: <Pages />,
-    },
-    {
-        path: "/pages/new",
-        // @ts-ignore
-        element: <NewPage />,
-    },
-    {
-        path: "/pages/edit",
-        // @ts-ignore
-        element: <EditPage />,
     },
 ];
 

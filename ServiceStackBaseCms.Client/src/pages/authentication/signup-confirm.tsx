@@ -42,9 +42,9 @@ const SignupConfirm = () => {
                                     </p>
                                 </div>
                                 <form className="space-y-5">
-                                    <a id="confirm-link" href={confirmLink || '/signin'}>
+                                    <a id="confirm-link" href={confirmLink}>
                                         <button
-                                            type="button"
+                                            type="submit"
                                             className="btn btn-primary !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                                         >
                                             Click để xác nhận tài khoản của bạn
@@ -52,6 +52,16 @@ const SignupConfirm = () => {
                                     </a>
                                 </form>
                             </div>
+                            <form className="space-y-5">
+                                <a id="confirm-link" href={confirmLink}>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+                                    >
+                                        Click để xác nhận tài khoản của bạn
+                                    </button>
+                                </a>
+                            </form>
                         </div>
                     </div>
                 </div>
