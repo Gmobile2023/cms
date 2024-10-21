@@ -80,6 +80,8 @@ app.UseHttpsRedirection();
 
 app.MapFallbackToFile("/index.html");
 
+app.UseMiddleware<RoleMiddleware>();
+
 app.UseAuthorization();
 
 app.UseServiceStack(new AppHost(), options =>
