@@ -10,7 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "dependencies": {
+  "dependencies": {  
     "@mantine/core": "^5.10.5",
     "@mantine/hooks": "^5.10.5",
     "@radix-ui/react-dialog": "^1.1.1",
