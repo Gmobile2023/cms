@@ -50,17 +50,26 @@ const Sidebar = () => {
             permission: "",
             icon: <IconNotesEdit />,
         },
+        // {
+        //     label: "Quản lý roles",
+        //     path: "/roles-manager",
+        //     permission: "",
+        //     icon: <IconNotesEdit />,
+        // },
+        // {
+        //     label: "Quản lý permission",
+        //     path: "/permission-manager",
+        //     permission: "",
+        //     icon: <IconNotesEdit />,
+        // },
         {
-            label: "Quản lý roles",
-            path: "/roles-manager",
+            label: "Phân quyền",
+            submenu: [
+                { label: "Quản lý vai trò", path: "/roles-manager" },
+                { label: "Quản lý quyền", path: "/permission-manager" },
+            ],
             permission: "",
-            icon: <IconNotesEdit />,
-        },
-        {
-            label: "Quản lý permission",
-            path: "/permission-manager",
-            permission: "",
-            icon: <IconNotesEdit />,
+            icon: <IconSettings />,
         },
         {
             label: "Hệ thống",
@@ -68,7 +77,7 @@ const Sidebar = () => {
                 { label: "Cài đặt", path: "/system/setting" },
                 { label: "Preview", path: "/system/preview" },
             ],
-            permission: "manage_system",
+            permission: "",
             icon: <IconSettings />,
         },
     ];
