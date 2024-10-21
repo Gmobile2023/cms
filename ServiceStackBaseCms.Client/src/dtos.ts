@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-18 14:42:29
+Date: 2024-10-19 08:46:06
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -164,13 +164,6 @@ export class Booking extends AuditBase
     public constructor(init?: Partial<Booking>) { super(init); (Object as any).assign(this, init); }
 }
 
-export enum PageStatus
-{
-    Draft = 'Draft',
-    Published = 'Published',
-    Archived = 'Archived',
-}
-
 /** @description Pages Management */
 export class Page extends AuditBase
 {
@@ -180,7 +173,9 @@ export class Page extends AuditBase
     public shortDescription: string;
     public content: string;
     public seoMeta: string;
-    public status: PageStatus;
+    // @Required()
+    public status: number;
+
     public thumbnailImage: string;
 
     public constructor(init?: Partial<Page>) { super(init); (Object as any).assign(this, init); }
@@ -479,6 +474,7 @@ export class CreateUserRequest
 // @Route("/user", "PUT")
 export class UpdateUserRequest
 {
+    public id?: string;
     public firstName?: string;
     public lastName?: string;
     public displayName?: string;
@@ -823,7 +819,6 @@ export class DeleteCoupon implements IReturnVoid, IDeleteDb<Coupon>
 
 /** @description Tạo mới page */
 // @Route("/pages", "POST")
-// @ValidateRequest(Validator="HasRole(`Manager`)")
 export class CreatePage implements IReturn<IdResponse>, ICreateDb<Page>
 {
     public title: string;
@@ -831,7 +826,7 @@ export class CreatePage implements IReturn<IdResponse>, ICreateDb<Page>
     public shortDescription: string;
     public content: string;
     public seoMeta: string;
-    public status: PageStatus;
+    public status: number;
     public thumbnailImage: string;
 
     public constructor(init?: Partial<CreatePage>) { (Object as any).assign(this, init); }

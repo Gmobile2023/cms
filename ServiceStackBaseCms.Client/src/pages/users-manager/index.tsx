@@ -7,28 +7,24 @@ import IconSearch from "../../components/Icon/IconSearch";
 import IconUser from "../../components/Icon/IconUser";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
-import { client } from "@/gateway";
-import { QueryTodos } from "@/dtos";
-import { JsonServiceClient } from "@servicestack/client";
 import { SelectInput } from "@/components/Form";
+import { CreateUser, fetchAllUser, UpdateUser } from "@/services/usersService";
 
 const UsersManager = () => {
     const dispatch = useDispatch();
+    const [users, setUsers] = useState([]);
+
     useEffect(() => {
         dispatch(setPageTitle("Users Manager"));
     });
 
-    const API_URL = "https://localhost:5001/api";
-    const client = new JsonServiceClient(API_URL);
-
     const fetchUsers = async () => {
-        // setLoading(true);
         try {
-            const response = await client.get<any>("/AdminQueryUsers");
+            const response = await fetchAllUser();
             if (response) {
-                // setTodos(api.response.results || []);
+                setUsers(response.response.items || []);
                 // setInitialRecords(api.response.results || []);
-                console.log(response);
+                // console.log(response.response.items);
             } else {
                 // setError(api.error);
                 // console.log(error);
@@ -42,18 +38,16 @@ const UsersManager = () => {
     };
 
     useEffect(() => {
-        // fetchUsers();
+        fetchUsers();
     }, []);
 
-    const [addContactModal, setAddContactModal] = useState<any>(false);
+    const [addUserModal, setAddUserModal] = useState<any>(false);
 
     const [defaultParams] = useState({
         id: null,
-        name: "",
+        userName: "",
         email: "",
-        phone: "",
-        role: "",
-        location: "",
+        password: "",
     });
 
     const [params, setParams] = useState<any>(
@@ -66,45 +60,21 @@ const UsersManager = () => {
     };
 
     const [search, setSearch] = useState<any>("");
-    const [contactList] = useState<any>([
-        {
-            id: 1,
-            path: "profile-35.png",
-            name: "Alan Green",
-            role: "Web Developer",
-            email: "alan@mail.com",
-            location: "Boston, USA",
-            phone: "+1 202 555 0197",
-            posts: 25,
-            followers: "5K",
-            following: 500,
-        },
-        {
-            id: 2,
-            path: "profile-35.png",
-            name: "Linda Nelson",
-            role: "Web Designer",
-            email: "linda@mail.com",
-            location: "Sydney, Australia",
-            phone: "+1 202 555 0170",
-            posts: 25,
-            followers: "21.5K",
-            following: 350,
-        },
-    ]);
 
-    const [filteredItems, setFilteredItems] = useState<any>(contactList);
+    const [filteredItems, setFilteredItems] = useState<any>(users);
 
     useEffect(() => {
         setFilteredItems(() => {
-            return contactList.filter((item: any) => {
-                return item.name.toLowerCase().includes(search.toLowerCase());
+            return users.filter((item: any) => {
+                return item.userName
+                    .toLowerCase()
+                    .includes(search.toLowerCase());
             });
         });
-    }, [search, contactList]);
+    }, [search, users]);
 
-    const saveUser = () => {
-        if (!params.name) {
+    const saveUser = async () => {
+        if (!params.userName) {
             showMessage("Name is required.", "error");
             return true;
         }
@@ -112,51 +82,31 @@ const UsersManager = () => {
             showMessage("Email is required.", "error");
             return true;
         }
-        if (!params.phone) {
-            showMessage("Phone is required.", "error");
-            return true;
-        }
-        if (!params.role) {
-            showMessage("Occupation is required.", "error");
-            return true;
-        }
+        // if (!params.password) {
+        //     showMessage("Password is required.", "error");
+        //     return true;
+        // }
 
         if (params.id) {
-            //update user
-            let user: any = filteredItems.find((d: any) => d.id === params.id);
-            user.name = params.name;
-            user.email = params.email;
-            user.phone = params.phone;
-            user.role = params.role;
-            user.location = params.location;
-        } else {
-            //add user
-            let maxUserId = filteredItems.length
-                ? filteredItems.reduce(
-                      (max: any, character: any) =>
-                          character.id > max ? character.id : max,
-                      filteredItems[0].id
-                  )
-                : 0;
-
+            // Update user
             let user = {
-                id: maxUserId + 1,
-                path: "profile-35.png",
-                name: params.name,
+                userName: params.userName,
                 email: params.email,
-                phone: params.phone,
-                role: params.role,
-                location: params.location,
-                posts: 20,
-                followers: "5K",
-                following: 500,
+                // password: params.password,
             };
-            filteredItems.splice(0, 0, user);
-            //   searchContacts();
+            const response = await UpdateUser(user);
+            console.log(response);
+        } else {
+            let user = {
+                userName: params.userName,
+                email: params.email,
+                password: params.password,
+            };
+            const response = await CreateUser(user);
+            showMessage("Người dùng đã được thêm thành công!.");
         }
 
-        showMessage("User has been saved successfully.");
-        setAddContactModal(false);
+        setAddUserModal(false);
     };
 
     const editUser = (user: any = null) => {
@@ -166,12 +116,12 @@ const UsersManager = () => {
             let json1 = JSON.parse(JSON.stringify(user));
             setParams(json1);
         }
-        setAddContactModal(true);
+        setAddUserModal(true);
     };
 
     const deleteUser = (user: any = null) => {
         setFilteredItems(filteredItems.filter((d: any) => d.id !== user.id));
-        showMessage("User has been deleted successfully.");
+        showMessage("Người dùng đã được xoá thành công!");
     };
 
     const showMessage = (msg = "", type = "success") => {
@@ -231,55 +181,30 @@ const UsersManager = () => {
                         <table className="table-striped table-hover">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>Họ tên</th>
                                     <th>Email</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Số điện thoại</th>
                                     <th className="!text-center">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredItems.map((contact: any) => {
+                                {filteredItems.map((user: any, index: any) => {
                                     return (
-                                        <tr key={contact.id}>
+                                        <tr key={index}>
                                             <td>
-                                                <div className="flex items-center w-max">
-                                                    {contact.path && (
-                                                        <div className="w-max">
-                                                            <img
-                                                                src={`/assets/images/${contact.path}`}
-                                                                className="h-8 w-8 rounded-full object-cover ltr:mr-2 rtl:ml-2"
-                                                                alt="avatar"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                    {!contact.path &&
-                                                        contact.name && (
-                                                            <div className="grid place-content-center h-8 w-8 ltr:mr-2 rtl:ml-2 rounded-full bg-primary text-white text-sm font-semibold"></div>
-                                                        )}
-                                                    {!contact.path &&
-                                                        !contact.name && (
-                                                            <div className="border border-gray-300 dark:border-gray-800 rounded-full p-2 ltr:mr-2 rtl:ml-2">
-                                                                <IconUser className="w-4.5 h-4.5" />
-                                                            </div>
-                                                        )}
-                                                    <div>{contact.name}</div>
-                                                </div>
+                                                <div>{index + 1}</div>
                                             </td>
-                                            <td>{contact.email}</td>
-                                            <td className="whitespace-nowrap">
-                                                {contact.location}
+                                            <td>
+                                                <div>{user.userName}</div>
                                             </td>
-                                            <td className="whitespace-nowrap">
-                                                {contact.phone}
-                                            </td>
+                                            <td>{user.email}</td>
                                             <td>
                                                 <div className="flex gap-4 items-center justify-center">
                                                     <button
                                                         type="button"
                                                         className="btn btn-sm btn-warning"
                                                         onClick={() =>
-                                                            editUser(contact)
+                                                            editUser(user)
                                                         }
                                                     >
                                                         Sửa
@@ -288,7 +213,7 @@ const UsersManager = () => {
                                                         type="button"
                                                         className="btn btn-sm btn-danger"
                                                         onClick={() =>
-                                                            deleteUser(contact)
+                                                            deleteUser(user)
                                                         }
                                                     >
                                                         Xoá
@@ -302,11 +227,11 @@ const UsersManager = () => {
                         </table>
                     </div>
                 </div>
-                <Transition appear show={addContactModal} as={Fragment}>
+                <Transition appear show={addUserModal} as={Fragment}>
                     <Dialog
                         as="div"
-                        open={addContactModal}
-                        onClose={() => setAddContactModal(false)}
+                        open={addUserModal}
+                        onClose={() => setAddUserModal(false)}
                         className="relative z-[51]"
                     >
                         <Transition.Child
@@ -335,29 +260,59 @@ const UsersManager = () => {
                                         <button
                                             type="button"
                                             onClick={() =>
-                                                setAddContactModal(false)
+                                                setAddUserModal(false)
                                             }
                                             className="absolute top-4 ltr:right-4 rtl:left-4 text-gray-400 hover:text-gray-800 dark:hover:text-gray-600 outline-none"
                                         >
                                             <IconX />
                                         </button>
                                         <div className="text-lg font-medium bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">
-                                            {params.id
-                                                ? "Edit Contact"
-                                                : "Add Contact"}
+                                            {!params.id
+                                                ? "Thêm người dùng"
+                                                : "Sửa người dùng"}
                                         </div>
                                         <div className="p-5">
                                             <form>
                                                 <div className="mb-5">
-                                                    <label htmlFor="name">
-                                                        Name
+                                                    <label htmlFor="lastName">
+                                                        Họ
                                                     </label>
                                                     <input
-                                                        id="name"
+                                                        id="lastName"
                                                         type="text"
-                                                        placeholder="Enter Name"
+                                                        placeholder="Nhập họ"
                                                         className="form-input"
-                                                        value={params.name}
+                                                        value={params.lastName}
+                                                        onChange={(e) =>
+                                                            changeValue(e)
+                                                        }
+                                                    />
+                                                </div>
+                                                <div className="mb-5">
+                                                    <label htmlFor="firstName">
+                                                        Tên
+                                                    </label>
+                                                    <input
+                                                        id="firstName"
+                                                        type="text"
+                                                        placeholder="Nhập tên"
+                                                        className="form-input"
+                                                        value={params.firstName}
+                                                        onChange={(e) =>
+                                                            changeValue(e)
+                                                        }
+                                                    />
+                                                </div>
+                                                <div className="mb-5">
+                                                    <label htmlFor="userName">
+                                                        Tên người dùng
+                                                    </label>
+                                                    <input
+                                                        id="userName"
+                                                        type="text"
+                                                        placeholder="Nhập tên người dùng"
+                                                        className="form-input"
+                                                        value={params.userName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -370,7 +325,7 @@ const UsersManager = () => {
                                                     <input
                                                         id="email"
                                                         type="email"
-                                                        placeholder="Enter Email"
+                                                        placeholder="Nhập email"
                                                         className="form-input"
                                                         value={params.email}
                                                         onChange={(e) =>
@@ -378,65 +333,52 @@ const UsersManager = () => {
                                                         }
                                                     />
                                                 </div>
-                                                <div className="mb-5">
-                                                    <label htmlFor="number">
-                                                        Phone Number
+                                                {!params.id && (
+                                                    <div className="mb-5">
+                                                        <label htmlFor="password">
+                                                            Mật khẩu
+                                                        </label>
+                                                        <input
+                                                            id="password"
+                                                            type="password"
+                                                            placeholder="Nhập mật khẩu"
+                                                            className="form-input"
+                                                            value={
+                                                                params.password
+                                                            }
+                                                            onChange={(e) =>
+                                                                changeValue(e)
+                                                            }
+                                                        />
+                                                    </div>
+                                                )}
+
+                                                {/* <div className="mb-5">
+                                                    <label htmlFor="email">
+                                                        Password
                                                     </label>
                                                     <input
-                                                        id="phone"
-                                                        type="text"
-                                                        placeholder="Enter Phone Number"
+                                                        id="password"
+                                                        type="password"
+                                                        placeholder="Enter Password"
                                                         className="form-input"
-                                                        value={params.phone}
+                                                        value={params.password}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
                                                     />
-                                                </div>
-                                                <div className="mb-5">
-                                                    <label htmlFor="occupation">
-                                                        Occupation
-                                                    </label>
-                                                    <input
-                                                        id="role"
-                                                        type="text"
-                                                        placeholder="Enter Occupation"
-                                                        className="form-input"
-                                                        value={params.role}
-                                                        onChange={(e) =>
-                                                            changeValue(e)
-                                                        }
-                                                    />
-                                                </div>
-                                                <div className="mb-5">
-                                                    <label htmlFor="isFinished">
-                                                        Is finished
-                                                    </label>
-                                                    <SelectInput
-                                                        value={
-                                                            params.isFinished
-                                                                ? "true"
-                                                                : "false"
-                                                        }
-                                                        // onChange={(e) => handleInputChange('isFinished', e.target.value === "true")}
-                                                        className="form-select"
-                                                        options={{
-                                                            true: "Finished",
-                                                            false: "Not Finished",
-                                                        }}
-                                                    ></SelectInput>
-                                                </div>
+                                                </div> */}
                                                 <div className="flex justify-end items-center mt-8">
                                                     <button
                                                         type="button"
                                                         className="btn btn-outline-danger"
                                                         onClick={() =>
-                                                            setAddContactModal(
+                                                            setAddUserModal(
                                                                 false
                                                             )
                                                         }
                                                     >
-                                                        Cancel
+                                                        Huỷ
                                                     </button>
                                                     <button
                                                         type="button"
@@ -444,8 +386,8 @@ const UsersManager = () => {
                                                         onClick={saveUser}
                                                     >
                                                         {params.id
-                                                            ? "Update"
-                                                            : "Add"}
+                                                            ? "Cập nhật"
+                                                            : "Thêm mới"}
                                                     </button>
                                                 </div>
                                             </form>
