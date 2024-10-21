@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { Dialog, Transition } from "@headlessui/react";
 import IconX from "@/components/Icon/IconX";
 import { TextInput } from "@/components/Form";
+import { getRoles } from "@/services/rolesService";
 
 const tableData = [
     {
@@ -18,10 +19,31 @@ const tableData = [
 const Roles = () => {
     const dispatch = useDispatch();
     const [modal, setModal] = useState(false);
+    const [roles, setRoles] = useState([]);
 
     useEffect(() => {
-        dispatch(setPageTitle("Roles Manager"));
-    });
+        dispatch(setPageTitle("Quản lý vai trò"));
+        getAllRoles();
+    }, []);
+
+    const getAllRoles = async () => {
+        try {
+            const response = await getRoles();
+            if (response.success) {
+                setRoles(response.response.items || []);
+                // setInitialRecords(api.response.results || []);
+                // console.log(response);
+            } else {
+                // setError(api.error);
+                console.log(response);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
 
     const handleSubmit = () => {};
 
@@ -34,7 +56,7 @@ const Roles = () => {
             <div className="panel">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <h5 className="font-semibold text-lg dark:text-white-light">
-                        Roles Manager
+                        Quản lý vai trò
                     </h5>
                 </div>
                 <button
@@ -42,7 +64,7 @@ const Roles = () => {
                     className="btn btn-primary me-4"
                     onClick={openModal}
                 >
-                    Add Role
+                    Thêm vai trò
                 </button>
                 <div className="flex justify-between gap-5 mt-8">
                     {/* Bảng Roles */}
@@ -53,34 +75,47 @@ const Roles = () => {
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Name</th>
+                                            <th>Tên vai trò</th>
                                             <th className="float-end">
-                                                Actions
+                                                Hành động
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {tableData.map((perm: any) => {
+                                        {roles.map((perm: any, index) => {
                                             return (
-                                                <tr key={perm.id}>
+                                                <tr key={index}>
                                                     <td>
                                                         <div className="flex items-center w-max">
-                                                            <div>{perm.id}</div>
+                                                            <div>
+                                                                {index + 1}
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     <td>{perm.name}</td>
 
-                                                    <td className="float-end">
+                                                    <td className="float-end flex gap-4 items-center justify-center">
                                                         <button
                                                             type="button"
-                                                            className="btn btn-sm btn-outline-danger"
+                                                            className="btn btn-sm btn-warning"
+                                                            onClick={() =>
+                                                                console.log(
+                                                                    "Sửa"
+                                                                )
+                                                            }
+                                                        >
+                                                            Sửa
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-danger"
                                                             onClick={() =>
                                                                 console.log(
                                                                     "Delete"
                                                                 )
                                                             }
                                                         >
-                                                            Delete
+                                                            Xoá
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -125,9 +160,9 @@ const Roles = () => {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                    <Dialog.Panel className="panel my-8 w-full max-w-2xl overflow-hidden rounded-lg border-0 py-1 px-4 text-black dark:text-white-dark">
+                                    <Dialog.Panel className="panel my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 py-1 px-4 text-black dark:text-white-dark">
                                         <div className="flex items-center justify-between p-5 text-lg font-semibold dark:text-white">
-                                            <h5>Add Role</h5>
+                                            <h5>Thêm vai trò</h5>
                                             <button
                                                 type="button"
                                                 onClick={() => setModal(false)}
@@ -148,7 +183,7 @@ const Roles = () => {
                                                         // onChange={(e) => handleInputChange('text', e.target.value)}
                                                     />
                                                 </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                                {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                                                     <label className="inline-flex">
                                                         <input
                                                             type="checkbox"
@@ -217,7 +252,7 @@ const Roles = () => {
                                                             Accounts Manager
                                                         </span>
                                                     </label>
-                                                </div>
+                                                </div> */}
                                                 <button
                                                     type="submit"
                                                     className="btn btn-primary w-full"
