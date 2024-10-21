@@ -96,7 +96,11 @@ const Roles = () => {
                             Quản lý Roles
                         </h5>
                         <div className="ml-auto">
-                            <Button variant="filled" color="blue">
+                            <Button
+                                variant="filled"
+                                color="blue"
+                                onClick={openModal}
+                            >
                                 Thêm mới
                             </Button>
                         </div>

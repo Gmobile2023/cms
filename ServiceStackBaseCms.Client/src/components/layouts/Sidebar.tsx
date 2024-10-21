@@ -41,7 +41,7 @@ const Sidebar = () => {
         {
             label: "Người dùng",
             path: "/users-manager",
-            permission: "manage_users",
+            permission: "",
             icon: <IconMenuUsers />,
         },
         {

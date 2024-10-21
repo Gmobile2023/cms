@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import moment from "moment";
+import Select from "react-select";
 
 const UsersManager = () => {
     const dispatch = useDispatch();
@@ -27,6 +28,7 @@ const UsersManager = () => {
     const [roles, setRoles] = useState<any[]>([]);
     const [selectedValue, setSelectedValue] = useState<string>("");
     const [totalRecords, setTotalRecords] = useState(0);
+    const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
     useEffect(() => {
         dispatch(setPageTitle("Users Manager"));
@@ -87,11 +89,32 @@ const UsersManager = () => {
         userName: "",
         email: "",
         password: "",
+        roleName: [],
     });
 
     const [params, setParams] = useState<any>(
         JSON.parse(JSON.stringify(defaultParams))
     );
+
+    useEffect(() => {
+        if (params.roleName) {
+            setSelectedRoles(params.roleName);
+        }
+    }, [params]);
+
+    const handleRoleChange = (role: string) => {
+        setSelectedRoles((prevSelectedRoles) =>
+            prevSelectedRoles.includes(role)
+                ? prevSelectedRoles.filter((r) => r !== role)
+                : [...prevSelectedRoles, role]
+        );
+    };
+
+    const handleSaveUser = () => {
+        // Gán selectedRoles vào params.roleName
+        params.roleName = selectedRoles; // Hoặc tạo một bản sao mới của params
+        saveUser(); // Gọi hàm lưu
+    };
 
     const changeValue = (e: any) => {
         const { value, id } = e.target;
@@ -125,6 +148,7 @@ const UsersManager = () => {
         //     showMessage("Password is required.", "error");
         //     return true;
         // }
+        params.roleName = selectedRoles;
 
         if (params.id) {
             // Update user
@@ -323,7 +347,7 @@ const UsersManager = () => {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg text-black dark:text-white-dark">
+                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-2xl text-black dark:text-white-dark">
                                         <button
                                             type="button"
                                             onClick={() =>
@@ -423,15 +447,41 @@ const UsersManager = () => {
                                                     <label htmlFor="role">
                                                         Role
                                                     </label>
-                                                    <SelectInput
-                                                        id="role"
-                                                        className="form-select"
-                                                        options={options}
-                                                        value={selectedValue}
-                                                        onChange={
-                                                            handleSelectChange
-                                                        }
-                                                    ></SelectInput>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                                        {roles.map(
+                                                            (
+                                                                role: any,
+                                                                index
+                                                            ) => {
+                                                                return (
+                                                                    <label
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="inline-flex"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="form-checkbox text-info"
+                                                                            checked={selectedRoles.includes(
+                                                                                role.name
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                handleRoleChange(
+                                                                                    role.name
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                role.name
+                                                                            }
+                                                                        </span>
+                                                                    </label>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div className="flex justify-end items-center mt-8">
                                                     <Button

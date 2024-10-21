@@ -77,7 +77,11 @@ const Permission = () => {
                             Quản lý quyền
                         </h5>
                         <div className="ml-auto">
-                            <Button variant="filled" color="blue">
+                            <Button
+                                variant="filled"
+                                color="blue"
+                                onClick={openModal}
+                            >
                                 Thêm mới
                             </Button>
                         </div>
@@ -178,14 +182,14 @@ const Permission = () => {
                                         </button>
                                         <div className="text-lg font-medium bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">
                                             {!params.id
-                                                ? "Thêm vai trò"
-                                                : "Sửa vai trò"}
+                                                ? "Thêm quyền"
+                                                : "Sửa quyền"}
                                         </div>
                                         <div className="p-5">
                                             <form>
                                                 <div className="mb-5">
                                                     <label htmlFor="lastName">
-                                                        Tên vai trò
+                                                        Tên quyền
                                                     </label>
                                                     <input
                                                         id="lastName"
@@ -198,20 +202,6 @@ const Permission = () => {
                                                         }
                                                     />
                                                 </div>
-                                                {/* <div className="mb-5">
-                                                    <label htmlFor="role">
-                                                        Role
-                                                    </label>
-                                                    <SelectInput
-                                                        id="role"
-                                                        className="form-select"
-                                                        options={options}
-                                                        value={selectedValue}
-                                                        onChange={
-                                                            handleSelectChange
-                                                        }
-                                                    ></SelectInput>
-                                                </div> */}
                                                 <div className="flex justify-end items-center mt-8">
                                                     <Button
                                                         variant="filled"
