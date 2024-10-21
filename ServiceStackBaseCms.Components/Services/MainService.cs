@@ -1,4 +1,5 @@
-﻿using ServiceStackBaseCms.Domain.Repositories;
+﻿using Microsoft.AspNetCore.Authorization;
+using ServiceStackBaseCms.Domain.Repositories;
 using ServiceStackBaseCms.ServiceModel;
 using ServiceStack;
 namespace ServiceStackBaseCms.Components.Services;
@@ -49,7 +50,7 @@ public class MainService : Service
     {
         return await _managerUserRepository.UpdateUser(request);
     }
-
+    [Authorize()]
     public async Task<object> GetAsync(UsersRequest request)
     {
         return await _managerUserRepository.GetUsers(request);
@@ -92,9 +93,14 @@ public class MainService : Service
         return await _managerUserRepository.GetRoleClaim(request);
     }
     
-    public async Task<object> GetAsync(RoleClaimsRequest request)
+    public async Task<object> PostAsync(CreateRolesRequest request)
     {
-        return await _managerUserRepository.GetRoleClaims(request);
+        return await _managerUserRepository.CreateRole(request);
+    }
+    
+    public async Task<object> PutAsync(UpdateRolesRequest request)
+    {
+        return await _managerUserRepository.UpdateRole(request);
     }
     
     public async Task<object> PutAsync(UpdateRoleClaim request)

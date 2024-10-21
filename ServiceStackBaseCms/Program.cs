@@ -80,7 +80,7 @@ app.UseHttpsRedirection();
 
 app.MapFallbackToFile("/index.html");
 
-app.UseMiddleware<RoleMiddleware>();
+// app.UseMiddleware<RoleMiddleware>();
 
 app.UseAuthorization();
 
