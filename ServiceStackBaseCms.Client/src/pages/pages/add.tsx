@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setPageTitle } from "../../store/slices/themeConfigSlice";
 import { ErrorSummary, SelectInput, TextAreaInput, TextInput } from '@/components/Form';

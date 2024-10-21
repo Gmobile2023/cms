@@ -112,24 +112,142 @@ public class ManagerUserRepository : IManagerUserRepository
         }
     }
 
-    public Task<PagedResultDto<UserClaims>> GetUserClaims(UserClaimsRequest request)
+    public async Task<PagedResultDto<UserClaims>> GetUserClaims(UserClaimsRequest request)
     {
-        throw new NotImplementedException();
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var query =  db.From<UserClaims>();
+            var total = db.Count(query);
+            var userClaims = await db.SelectAsync(query);
+            return new PagedResultDto<UserClaims>()
+            {
+                Items = userClaims,
+                TotalCount = total
+            };
+        }
+        catch (Exception e)
+        {
+            return new PagedResultDto<UserClaims>()
+            {
+                Items = new List<UserClaims>(),
+                TotalCount = 0
+            };
+        }
     }
 
-    public Task<bool> CreateUserClaim(CreateUserClaimRequest request)
+    public async Task<bool> CreateUserClaim(CreateUserClaimRequest request)
     {
-        throw new NotImplementedException();
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var userClaim = request.ConvertTo<UserClaims>();
+            await db.InsertAsync(userClaim);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
-    public Task<bool> UpdateUserClaim(UpdateUserClaimRequest request)
+    public async Task<bool> UpdateUserClaim(UpdateUserClaimRequest request)
     {
-        throw new NotImplementedException();
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var userClaim = request.ConvertTo<UserClaims>();
+            await db.UpdateAsync(userClaim);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+    
+    public async Task<bool> UpdateRoleClaim(UpdateRoleClaim request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var userClaim = request.ConvertTo<RoleClaims>();
+            await db.UpdateAsync(userClaim);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+    
+    public async Task<bool> CreateRoleClaim(CreateRoleClaim request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var userClaim = request.ConvertTo<RoleClaims>();
+            await db.InsertAsync(userClaim);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
-    public Task<UserClaims> GetUserClaim(UserClaimRequest request)
+    public async Task<RoleClaims> GetRoleClaim(RoleClaimRequest request)
     {
-        throw new NotImplementedException();
+        using var db = _connectionFactory.OpenDbConnection();
+        try
+        {
+            var roleClaim = await db.SingleByIdAsync<RoleClaims>(request.Id);
+            return roleClaim;
+
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+    
+    public async Task<PagedResultDto<RoleClaims>> GetRoleClaims(RoleClaimsRequest request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var query =  db.From<RoleClaims>();
+            var total = db.Count(query);
+            var roleClaims = await db.SelectAsync(query);
+            return new PagedResultDto<RoleClaims>()
+            {
+                Items = roleClaims,
+                TotalCount = total
+            };
+        }
+        catch (Exception e)
+        {
+            return new PagedResultDto<RoleClaims>()
+            {
+                Items = new List<RoleClaims>(),
+                TotalCount = 0
+            };
+        }
+    }
+
+    public async Task<UserClaims> GetUserClaim(UserClaimRequest request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+          var userClaim =   await db.SingleByIdAsync<UserClaims>(request.Id);
+          return userClaim;
+
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     public async Task<UserDto> GetUser(string  id)
