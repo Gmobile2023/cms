@@ -22,6 +22,7 @@ const UsersManager = () => {
         try {
             const response = await fetchAllUser();
             if (response) {
+                // @ts-ignore
                 setUsers(response.response.items || []);
                 // setInitialRecords(api.response.results || []);
                 // console.log(response.response.items);
