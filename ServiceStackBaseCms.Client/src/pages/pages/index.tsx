@@ -115,7 +115,7 @@ const Pages = () => {
         console.log("Delete record:", record);
     };
 
-    const getBadge = (status: string) => {
+    const getBadge = (status: number) => {
         switch (status) {
             case 1:
                 return (

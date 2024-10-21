@@ -1,6 +1,7 @@
 /* Options:
+
 Date: 2024-10-21 16:02:59
-Version: 8.40
+
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
 
