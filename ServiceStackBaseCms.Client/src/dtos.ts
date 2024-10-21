@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-19 08:46:06
+Date: 2024-10-21 16:02:59
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -63,6 +63,16 @@ export interface IPatchDb<Table>
 
 export interface IDeleteDb<Table>
 {
+}
+
+export class PagedAndSortedRequest
+{
+    public sorting: string;
+    public filter: string;
+    public skipCount: number;
+    public maxResultCount: number;
+
+    public constructor(init?: Partial<PagedAndSortedRequest>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -501,11 +511,11 @@ export class UpdateUserRequest
 }
 
 // @Route("/users", "GET")
-export class UsersRequest
+export class UsersRequest extends PagedAndSortedRequest
 {
     public name: string;
 
-    public constructor(init?: Partial<UsersRequest>) { (Object as any).assign(this, init); }
+    public constructor(init?: Partial<UsersRequest>) { super(init); (Object as any).assign(this, init); }
     public getTypeName() { return 'UsersRequest'; }
     public getMethod() { return 'GET'; }
     public createResponse() {}
@@ -530,6 +540,104 @@ export class RolesRequest
     public constructor(init?: Partial<RolesRequest>) { (Object as any).assign(this, init); }
     public getTypeName() { return 'RolesRequest'; }
     public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/UserClaim/{Id}", "GET")
+export class UserClaimRequest
+{
+    public id: string;
+
+    public constructor(init?: Partial<UserClaimRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UserClaimRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/UserClaims", "GET")
+export class UserClaimsRequest
+{
+
+    public constructor(init?: Partial<UserClaimsRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UserClaimsRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/UserClaim", "PUT")
+export class UpdateUserClaimRequest
+{
+    public id: number;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<UpdateUserClaimRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UpdateUserClaimRequest'; }
+    public getMethod() { return 'PUT'; }
+    public createResponse() {}
+}
+
+// @Route("/UserClaim", "POST")
+export class CreateUserClaimRequest
+{
+    public id: number;
+    public userId: string;
+    public claimType?: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<CreateUserClaimRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'CreateUserClaimRequest'; }
+    public getMethod() { return 'POST'; }
+    public createResponse() {}
+}
+
+// @Route("/RoleClaim/{Id}", "GET")
+export class RoleClaimRequest
+{
+    public id: number;
+
+    public constructor(init?: Partial<RoleClaimRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'RoleClaimRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/RoleClaims", "GET")
+export class RoleClaimsRequest
+{
+    public id: number;
+    public roleId: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<RoleClaimsRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'RoleClaimsRequest'; }
+    public getMethod() { return 'GET'; }
+    public createResponse() {}
+}
+
+// @Route("/RoleClaim", "PUT")
+export class UpdateRoleClaim
+{
+    public id: number;
+    public roleId: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<UpdateRoleClaim>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'UpdateRoleClaim'; }
+    public getMethod() { return 'PUT'; }
+    public createResponse() {}
+}
+
+// @Route("/RoleClaim", "POST")
+export class CreateRoleClaim
+{
+    public id: number;
+    public roleId: string;
+    public claimType?: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<CreateRoleClaim>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'CreateRoleClaim'; }
+    public getMethod() { return 'POST'; }
     public createResponse() {}
 }
 

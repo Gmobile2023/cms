@@ -4,7 +4,7 @@ namespace ServiceStackBaseCms.ServiceModel;
 
 [Tag("Admin")]
 [Route("/users", "GET")]
-public class UsersRequest
+public class UsersRequest : PagedAndSortedRequest
 {
     public string Name { get; set; }
 }
