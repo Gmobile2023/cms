@@ -32,7 +32,8 @@ RUN dotnet build "./ServiceStackBaseCms.csproj" -c $BUILD_CONFIGURATION -o /app/
 # Stage 3: Publish the .NET service project
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ServiceStackBaseCms.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./ServiceStackBaseCms.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=false
+
 
 # Stage 4: Final stage for production or regular mode running
 FROM base AS final
