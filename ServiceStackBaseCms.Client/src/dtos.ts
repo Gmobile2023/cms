@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-21 17:52:08
+Date: 2024-10-21 18:13:24
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -428,6 +428,19 @@ export class CreateUserClaimRequest
     public constructor(init?: Partial<CreateUserClaimRequest>) { (Object as any).assign(this, init); }
     public getTypeName() { return 'CreateUserClaimRequest'; }
     public getMethod() { return 'POST'; }
+    public createResponse() {}
+}
+
+// @Route("/RoleClaims", "GET")
+export class RoleClaimsRequest
+{
+    public id: number;
+    public roleId: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<RoleClaimsRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'RoleClaimsRequest'; }
+    public getMethod() { return 'GET'; }
     public createResponse() {}
 }
 
