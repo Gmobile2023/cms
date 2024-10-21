@@ -85,8 +85,10 @@ public class MainService : Service
     {
         return await _managerUserRepository.CreateUserClaim(request);
     }
-    
-    
+    public async Task<object> GetAsync(RoleClaimsRequest request)
+    {
+        return await _managerUserRepository.GetRoleClaims(request);
+    }
     
     public async Task<object> GetAsync(RoleClaimRequest request)
     {
