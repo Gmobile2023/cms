@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
@@ -7,6 +8,7 @@ using ServiceStackBaseCms.ServiceModel;
 using Roles = ServiceStackBaseCms.Domain.Entities.Roles;
 
 namespace ServiceStackBaseCms.Domain.Repositories;
+
 
 public class ManagerUserRepository : IManagerUserRepository
 {
@@ -210,7 +212,37 @@ public class ManagerUserRepository : IManagerUserRepository
             return null;
         }
     }
-    
+
+    public async Task<bool> CreateRole(CreateRolesRequest request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var role = request.ConvertTo<Roles>();
+            await db.InsertAsync(role);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateRole(UpdateRolesRequest request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var role = request.ConvertTo<Roles>();
+            await db.UpdateAsync(role);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
     public async Task<PagedResultDto<RoleClaims>> GetRoleClaims(RoleClaimsRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
@@ -276,7 +308,7 @@ public class ManagerUserRepository : IManagerUserRepository
         {
             var query = db.From<Users>();
             var total = db.Count(query);
-            query.Skip(request.SkipCount).Take(request.MaxResultCount).OrderBy(x => x.FirstName);
+            query.Skip(request.SkipCount).Take(request.MaxResultCount);
             var users = db.Select<Users>(query);
             var Roles = db.SelectMulti<Roles, UserRoles>(
                 db.From<Roles>()

@@ -32,6 +32,8 @@ public class RoleMiddleware
                 .Where(ep => ep.Endpoint == endpoint)
                 .Select(ep => ep.RequiredRole)
                 .FirstOrDefaultAsync();
+            
+           
 
             if (requiredRole != null && !userRoles.Contains(requiredRole))
             {
