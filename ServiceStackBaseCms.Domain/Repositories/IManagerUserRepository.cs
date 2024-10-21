@@ -19,4 +19,5 @@ public interface IManagerUserRepository
     Task<bool> UpdateRoleClaim(UpdateRoleClaim request);
     Task<bool> CreateRoleClaim(CreateRoleClaim request);
     Task<RoleClaims> GetRoleClaim(RoleClaimRequest request);
+    
 }
