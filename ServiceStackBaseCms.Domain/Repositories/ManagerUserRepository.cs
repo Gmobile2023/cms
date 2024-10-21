@@ -274,15 +274,38 @@ public class ManagerUserRepository : IManagerUserRepository
         using var db =  _connectionFactory.OpenDbConnection();
         try
         {
-          var query =   db.From<Users>();
-          var total = db.Count(query);
-          var users = await db.SelectAsync(query);
-          var userDto = users.ConvertTo<List<UserDto>>();
-          return new PagedResultDto<UserDto>()
-          {
-              Items = userDto,
-              TotalCount = total,
-          };
+            var query = db.From<Users>();
+            var total = db.Count(query);
+            query.Skip(request.SkipCount).Take(request.MaxResultCount).OrderBy(x => x.FirstName);
+            var users = db.Select<Users>(query);
+            var Roles = db.SelectMulti<Roles, UserRoles>(
+                db.From<Roles>()
+                    .LeftJoin<UserRoles>((ur, r) => ur.Id == r.RoleId)
+            );
+            var userRoleMap = Roles.GroupBy(tuple => tuple.Item2.UserId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(tuple => tuple.Item1).ToList()
+                );
+            var usersWithRoles = users.Select(u => new UserDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                DisplayName = u.DisplayName,
+                ProfileUrl = u.ProfileUrl,
+                UserName = u.UserName,
+                Email = u.Email,
+                RoleName = userRoleMap.TryGetValue(u.Id, out var roles) 
+                    ? roles.Select(r => r.Name).ToList() 
+                    : new List<string>()
+            }).ToList();
+
+            return new PagedResultDto<UserDto>()
+            {
+                Items = usersWithRoles,
+                TotalCount = total
+            };
         }
         catch (Exception e)
         {

@@ -1,6 +1,7 @@
 /* Options:
-Date: 2024-10-21 10:36:13
-Version: 8.40
+
+Date: 2024-10-21 16:02:59
+
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
 
@@ -63,6 +64,16 @@ export interface IPatchDb<Table>
 
 export interface IDeleteDb<Table>
 {
+}
+
+export class PagedAndSortedRequest
+{
+    public sorting: string;
+    public filter: string;
+    public skipCount: number;
+    public maxResultCount: number;
+
+    public constructor(init?: Partial<PagedAndSortedRequest>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -501,11 +512,11 @@ export class UpdateUserRequest
 }
 
 // @Route("/users", "GET")
-export class UsersRequest
+export class UsersRequest extends PagedAndSortedRequest
 {
     public name: string;
 
-    public constructor(init?: Partial<UsersRequest>) { (Object as any).assign(this, init); }
+    public constructor(init?: Partial<UsersRequest>) { super(init); (Object as any).assign(this, init); }
     public getTypeName() { return 'UsersRequest'; }
     public getMethod() { return 'GET'; }
     public createResponse() {}
