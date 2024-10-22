@@ -5,7 +5,7 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the container
-COPY ServiceStackBaseCms.Client/package.json ServiceStackBaseCms.Client/package-lock.json ./
+COPY ./package.json .
 
 # Install dependencies
 RUN npm install
