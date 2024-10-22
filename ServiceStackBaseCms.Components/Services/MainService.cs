@@ -50,7 +50,6 @@ public class MainService : Service
     {
         return await _managerUserRepository.UpdateUser(request);
     }
-    [Authorize()]
     public async Task<object> GetAsync(UsersRequest request)
     {
         return await _managerUserRepository.GetUsers(request);

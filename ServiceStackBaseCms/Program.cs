@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ServiceStackBaseCms.Components.Services;
 using ServiceStackBaseCms.Data;
 using ServiceStackBaseCms.Domain.Entities;
 using ServiceStackBaseCms.ServiceInterface;

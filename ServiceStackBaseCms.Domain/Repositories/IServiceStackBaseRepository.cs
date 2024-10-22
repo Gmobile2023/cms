@@ -1,4 +1,5 @@
-﻿using ServiceStackBaseCms.Domain.Entities;
+﻿using iZota.Core.Shared;
+using ServiceStackBaseCms.Domain.Entities;
 using ServiceStackBaseCms.ServiceModel;
 using ServiceStackBaseCms.ServiceModel.Dto;
 
