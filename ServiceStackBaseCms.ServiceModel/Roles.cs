@@ -11,7 +11,7 @@ public class Roles
 
 [Tag("Role")]
 [Route("/roles", "GET")]
-public class RolesRequest
+public class RolesRequest : QueryBase
 {
     public string Name { get; set; }
 }
