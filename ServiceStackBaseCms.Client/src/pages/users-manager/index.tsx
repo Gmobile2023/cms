@@ -12,12 +12,15 @@ import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import moment from "moment";
 import Select from "react-select";
+import { client } from "@/gateway";
+import { QueryPages } from "@/dtos";
+import sortBy from "lodash/sortBy";
 
 const UsersManager = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    const PAGE_SIZES = [10, 20, 30, 50, 100];
+    const PAGE_SIZES = [5, 10, 20, 30, 50, 100];
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
@@ -28,23 +31,45 @@ const UsersManager = () => {
     const [roles, setRoles] = useState<any[]>([]);
     const [selectedValue, setSelectedValue] = useState<string>("");
     const [totalRecords, setTotalRecords] = useState(0);
-    const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+    const [addUserModal, setAddUserModal] = useState<any>(false);
+
+    const calculateSkip = () => (page - 1) * pageSize;
+
+    const [defaultParams] = useState({
+        id: null,
+        firstName: "",
+        lastName: "",
+        userName: "",
+        email: "",
+        password: "",
+        roleName: [],
+    });
+    const [params, setParams] = useState<any>(
+        JSON.parse(JSON.stringify(defaultParams))
+    );
+    const [selectedRoles, setSelectedRoles] = useState<string[]>(
+        params.roleName || []
+    );
 
     useEffect(() => {
         dispatch(setPageTitle("Users Manager"));
     });
 
+    useEffect(() => {
+        fetchUsers();
+    }, [page, pageSize]);
+
+    useEffect(() => {
+        const data = sortBy(recordsData, sortStatus.columnAccessor);
+        setRecordsData(sortStatus.direction === "desc" ? data.reverse() : data);
+    }, [sortStatus]);
+
     const fetchUsers = async () => {
         try {
-            const response = await fetchAllUser();
-            if (response) {
-                // @ts-ignore
-                setUsers(response.response.items || []);
-                // setInitialRecords(api.response.results || []);
-                // console.log(response.response.items);
-            } else {
-                // setError(api.error);
-                // console.log(error);
+            const api = await fetchAllUser();
+            if (api.success && api.response) {
+                setRecordsData(api.response.results || []);
+                setTotalRecords(api.response.total || 0);
             }
         } catch (err) {
             console.error(err);
@@ -56,9 +81,9 @@ const UsersManager = () => {
 
     const getAllRoles = async () => {
         try {
-            const response = await getRoles();
-            if (response.success) {
-                setRoles(response.response.items || []);
+            const api = await getRoles();
+            if (api.success && api.response) {
+                setRoles(api.response.results || []);
             } else {
                 // setError(api.error);
                 console.log(response.error);
@@ -80,22 +105,6 @@ const UsersManager = () => {
         getAllRoles();
     }, []);
 
-    const [addUserModal, setAddUserModal] = useState<any>(false);
-
-    const [defaultParams] = useState({
-        id: null,
-        firstName: "",
-        lastName: "",
-        userName: "",
-        email: "",
-        password: "",
-        roleName: [],
-    });
-
-    const [params, setParams] = useState<any>(
-        JSON.parse(JSON.stringify(defaultParams))
-    );
-
     useEffect(() => {
         if (params.roleName) {
             setSelectedRoles(params.roleName);
@@ -103,17 +112,14 @@ const UsersManager = () => {
     }, [params]);
 
     const handleRoleChange = (role: string) => {
-        setSelectedRoles((prevSelectedRoles) =>
-            prevSelectedRoles.includes(role)
-                ? prevSelectedRoles.filter((r) => r !== role)
-                : [...prevSelectedRoles, role]
-        );
-    };
+        setSelectedRoles((prevSelectedRoles) => {
+            const isRoleSelected = prevSelectedRoles.includes(role);
+            const updatedRoles = isRoleSelected
+                ? prevSelectedRoles.filter((r) => r !== role) // Xóa role
+                : [...prevSelectedRoles, role]; // Thêm role
 
-    const handleSaveUser = () => {
-        // Gán selectedRoles vào params.roleName
-        params.roleName = selectedRoles; // Hoặc tạo một bản sao mới của params
-        saveUser(); // Gọi hàm lưu
+            return updatedRoles;
+        });
     };
 
     const changeValue = (e: any) => {
@@ -128,6 +134,7 @@ const UsersManager = () => {
     useEffect(() => {
         setFilteredItems(() => {
             return users.filter((item: any) => {
+                // console.log(item);
                 return item.userName
                     .toLowerCase()
                     .includes(search.toLowerCase());
@@ -144,10 +151,6 @@ const UsersManager = () => {
             showMessage("Email is required.", "error");
             return true;
         }
-        // if (!params.password) {
-        //     showMessage("Password is required.", "error");
-        //     return true;
-        // }
         params.roleName = selectedRoles;
 
         if (params.id) {
@@ -158,12 +161,11 @@ const UsersManager = () => {
                 lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
-                // password: params.password,
-                roles: ["Admin"],
+                roles: selectedRoles,
             };
             const response = await UpdateUser(user);
             if (response.success) {
-                showMessage("Cập nhật người dùng thành công!.");
+                showMessage("Cập nhật người dùng thành công!");
                 fetchUsers();
             }
         } else {
@@ -173,7 +175,7 @@ const UsersManager = () => {
                 userName: params.userName,
                 email: params.email,
                 password: params.password,
-                roles: params.role,
+                roles: selectedRoles,
             };
             const response = await CreateUser(user);
             if (response.success) {
@@ -214,16 +216,6 @@ const UsersManager = () => {
         });
     };
 
-    const options = roles.reduce((acc, item) => {
-        acc[item.name] = item.normalizedName;
-        return acc;
-    }, {} as Record<string, string>);
-
-    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        // console.log(e.target.value);
-        setSelectedValue(e.target.value);
-    };
-
     return (
         <>
             <div>
@@ -252,7 +244,7 @@ const UsersManager = () => {
                         />
                         <DataTable
                             className="whitespace-nowrap table-hover"
-                            records={filteredItems}
+                            records={recordsData}
                             columns={[
                                 {
                                     accessor: "action",
@@ -303,7 +295,7 @@ const UsersManager = () => {
                                 },
                             ]}
                             highlightOnHover
-                            totalRecords={0}
+                            totalRecords={totalRecords}
                             recordsPerPage={pageSize}
                             page={page}
                             onPageChange={(p) => setPage(p)}
