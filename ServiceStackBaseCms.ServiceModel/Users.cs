@@ -6,7 +6,7 @@ namespace ServiceStackBaseCms.ServiceModel;
 [Tag("Admin")]
 
 [Route("/users", "GET")]
-public class UsersRequest : PagedAndSortedRequest
+public class UsersRequest : QueryBase
 {
     public string Name { get; set; }
 }
@@ -19,7 +19,7 @@ public class UserRequest
 }
 
 [Tag("Admin")]
-[ValidateHasRole("Admin")]
+// [ValidateHasRole("Admin")]
 [Route("/user", "POST")]
 public class CreateUserRequest
 {
@@ -62,7 +62,7 @@ public class CreateUserRequest
 }
 
 [Tag("Admin")]
-[ValidateHasRole("Admin")]
+// [ValidateHasRole("Admin")]
 [Route("/user", "PUT")]
 public class UpdateUserRequest
 {
