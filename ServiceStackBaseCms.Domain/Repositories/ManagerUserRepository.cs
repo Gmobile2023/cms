@@ -207,7 +207,6 @@ public class ManagerUserRepository : IManagerUserRepository
         try
         {
             var userClaim = request.ConvertTo<RoleClaims>();
-            userClaim.Id =  Guid.NewGuid().ToString();
             await db.InsertAsync(userClaim);
             return true;
         }
