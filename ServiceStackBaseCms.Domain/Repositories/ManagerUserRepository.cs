@@ -53,47 +53,62 @@ public class ManagerUserRepository : IManagerUserRepository
     }
     
     public async Task<bool> UpdateUser(UpdateUserRequest request)
+{
+    using var db = _connectionFactory.OpenDbConnection();
+    using var trans = db.OpenTransaction();
+    
+    try
     {
-        using var db =  _connectionFactory.OpenDbConnection();
-        using var trans = db.OpenTransaction();
-        try
+        // Lấy người dùng từ cơ sở dữ liệu
+        var user = await db.SingleByIdAsync<Users>(request.Id);
+        if (user == null) return false; // Kiểm tra nếu người dùng không tồn tại
+
+        // Cập nhật thông tin người dùng
+        user.Email = request.Email;
+        user.UserName = request.UserName;
+        user.LastName = request.LastName;
+        user.PhoneNumber = request.PhoneNumber;
+        user.NormalizedEmail = request.Email.ToUpper();
+        user.NormalizedUserName = request.UserName.ToUpper();
+        
+        var result = await db.UpdateAsync(user);
+        if (result == 0) return false;
+        
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        var rolesToUpdate = request.Roles ?? new List<string>();
+        
+        await db.DeleteAsync<UserRoles>(x => x.UserId == user.Id);
+        
+        var rolesInDb = (await db.SelectAsync<Roles>()).ToList(); 
+        var roleDictionary = new Dictionary<string, string>();
+        
+        foreach (var role in rolesInDb)
         {
-            
-            var user  = await db.SingleByIdAsync<Users>(request.Id) ;
-            user.Email = request.Email;
-            await _userManager.UpdateAsync(user);
-           
-            // user.ConcurrencyStamp = checkUser.ConcurrencyStamp;
-            // user.NormalizedEmail = user.NormalizedEmail.ToUpper();
-            // user.NormalizedUserName = user.NormalizedEmail.ToUpper();
-            // var result = await db.UpdateAsync(user);
-            if (true)
+            roleDictionary[role.Name] = role.Id;
+        }
+        var userRoles = rolesToUpdate
+            .Where(roleName => roleDictionary.TryGetValue(roleName, out string roleId))
+            .Select(roleName => new UserRoles
             {
-                var listRole = await _userManager.GetRolesAsync(user);
-                if (request.Roles != null && listRole != null)
-                {
-                    await _userManager.RemoveFromRolesAsync(user, listRole);
-                    var role = await _userManager.AddToRolesAsync(user, request.Roles);
-                    
-                    if (role.Succeeded)
-                    {
-                        trans.Commit();
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        catch (Exception e)
+                UserId = user.Id,
+                RoleId = roleDictionary[roleName]
+            }).ToList();
+
+        if (userRoles.Any())
         {
-            trans.Rollback();
-            return false;
+            await db.InsertAllAsync(userRoles);
         }
+
+        trans.Commit(); 
+        return true;
     }
+    catch (Exception ex)
+    {
+
+        trans.Rollback(); 
+        return false;
+    }
+}
     
     public async Task<QueryResponse<Roles>> GetRoles(RolesRequest request)
     {
