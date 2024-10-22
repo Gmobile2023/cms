@@ -20,6 +20,7 @@ public class CreateRoleClaim
 [Route("/RoleClaim", "PUT")]
 public class UpdateRoleClaim
 {
+    public int Id { get; set; }
     public  string RoleId { get; set; }
     public  string? ClaimValue { get; set; }
 
