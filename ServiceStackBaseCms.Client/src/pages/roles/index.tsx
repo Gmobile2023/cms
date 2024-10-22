@@ -3,102 +3,171 @@ import { Fragment, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Dialog, Transition } from "@headlessui/react";
 import IconX from "@/components/Icon/IconX";
-import { TextInput } from "@/components/Form";
+import { SelectInput, TextInput } from "@/components/Form";
+import { getRoleClaims, getRoles } from "@/services/rolesService";
+import { Button, Menu } from "@mantine/core";
+import { DataTable, DataTableSortStatus } from "mantine-datatable";
 
-const tableData = [
-    {
-        id: 1,
-        name: "Admin",
-    },
-    {
-        id: 2,
-        name: "Manager",
-    },
-];
 const Roles = () => {
     const dispatch = useDispatch();
     const [modal, setModal] = useState(false);
-
-    useEffect(() => {
-        dispatch(setPageTitle("Roles Manager"));
+    const [roles, setRoles] = useState([]);
+    const [roleClaims, setRoleClaims] = useState([]);
+    const PAGE_SIZES = [10, 20, 30, 50, 100];
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
+        columnAccessor: "id",
+        direction: "asc",
     });
 
+    useEffect(() => {
+        dispatch(setPageTitle("Quản lý vai trò"));
+        getAllRoles();
+        getAllRoleClaims();
+    }, []);
+
+    const [defaultParams] = useState({
+        id: null,
+        name: "",
+        normalizedName: "",
+    });
+
+    const [params, setParams] = useState<any>(
+        JSON.parse(JSON.stringify(defaultParams))
+    );
+
+    const getAllRoles = async () => {
+        try {
+            const response = await getRoles();
+            if (response.success) {
+                setRoles(response.response.items || []);
+                // console.log(response);
+            } else {
+                // setError(api.error);
+                console.log(response);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+    const getAllRoleClaims = async () => {
+        try {
+            const response = await getRoleClaims();
+            if (response.success) {
+                setRoleClaims(response.response.items || []);
+                // console.log(response);
+            } else {
+                // setError(api.error);
+                console.log(response);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
     const handleSubmit = () => {};
+
+    const handleDelete = (record: any) => {
+        console.log("Delete record:", record);
+    };
 
     const openModal = () => {
         setModal(true);
     };
 
+    const changeValue = (e: any) => {
+        const { value, id } = e.target;
+        setParams({ ...params, [id]: value });
+    };
+
     return (
         <>
-            <div className="panel">
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <h5 className="font-semibold text-lg dark:text-white-light">
-                        Roles Manager
-                    </h5>
-                </div>
-                <button
-                    type="button"
-                    className="btn btn-primary me-4"
-                    onClick={openModal}
-                >
-                    Add Role
-                </button>
-                <div className="flex justify-between gap-5 mt-8">
-                    {/* Bảng Roles */}
-                    <div className="w-full md:w-1/2 mb-5">
-                        <div className="mt-5 panel p-0 border-0 overflow-hidden">
-                            <div className="table-responsive">
-                                <table className="table-striped table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Name</th>
-                                            <th className="float-end">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {tableData.map((perm: any) => {
-                                            return (
-                                                <tr key={perm.id}>
-                                                    <td>
-                                                        <div className="flex items-center w-max">
-                                                            <div>{perm.id}</div>
-                                                        </div>
-                                                    </td>
-                                                    <td>{perm.name}</td>
-
-                                                    <td className="float-end">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-outline-danger"
-                                                            onClick={() =>
-                                                                console.log(
-                                                                    "Delete"
-                                                                )
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+            <div>
+                <div className="panel">
+                    <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
+                        <h5 className="font-semibold text-lg dark:text-white-light">
+                            Quản lý Roles
+                        </h5>
+                        <div className="ml-auto">
+                            <Button
+                                variant="filled"
+                                color="blue"
+                                onClick={openModal}
+                            >
+                                Thêm mới
+                            </Button>
                         </div>
+                    </div>
+                    <div className="datatables">
+                        {/* <input
+                            type="text"
+                            className="form-input w-auto mb-4"
+                            placeholder="Tìm kiếm..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        /> */}
+                        <DataTable
+                            className="whitespace-nowrap table-hover"
+                            records={roles}
+                            columns={[
+                                {
+                                    accessor: "action",
+                                    title: "Hành động",
+                                    render: (record) => (
+                                        <Menu>
+                                            <Menu.Target>
+                                                <Button size="xs">
+                                                    Hành động
+                                                </Button>
+                                            </Menu.Target>
+                                            <Menu.Dropdown>
+                                                <Menu.Item
+                                                    color="red"
+                                                    onClick={() =>
+                                                        handleDelete(record)
+                                                    }
+                                                >
+                                                    Xoá
+                                                </Menu.Item>
+                                            </Menu.Dropdown>
+                                        </Menu>
+                                    ),
+                                },
+                                {
+                                    accessor: "name",
+                                    sortable: true,
+                                    title: "Tên",
+                                },
+                            ]}
+                            highlightOnHover
+                            totalRecords={0}
+                            recordsPerPage={pageSize}
+                            page={page}
+                            onPageChange={(p) => setPage(p)}
+                            recordsPerPageOptions={PAGE_SIZES}
+                            onRecordsPerPageChange={setPageSize}
+                            sortStatus={sortStatus}
+                            onSortStatusChange={setSortStatus}
+                            minHeight={200}
+                            paginationText={({ from, to, totalRecords }) =>
+                                `Hiển thị ${from} - ${to} / ${totalRecords} kết quả`
+                            }
+                        />
                     </div>
                 </div>
                 <Transition appear show={modal} as={Fragment}>
                     <Dialog
                         as="div"
                         open={modal}
-                        onClose={() => {
-                            setModal(false);
-                        }}
+                        onClose={() => setModal(false)}
+                        className="relative z-[51]"
                     >
                         <Transition.Child
                             as={Fragment}
@@ -109,13 +178,10 @@ const Roles = () => {
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
                         >
-                            <div className="fixed inset-0" />
+                            <div className="fixed inset-0 bg-[black]/60" />
                         </Transition.Child>
-                        <div
-                            id="add_todo_modal"
-                            className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60"
-                        >
-                            <div className="flex min-h-screen items-start justify-center px-4">
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full items-center justify-center px-4 py-8">
                                 <Transition.Child
                                     as={Fragment}
                                     enter="ease-out duration-300"
@@ -125,105 +191,71 @@ const Roles = () => {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                    <Dialog.Panel className="panel my-8 w-full max-w-2xl overflow-hidden rounded-lg border-0 py-1 px-4 text-black dark:text-white-dark">
-                                        <div className="flex items-center justify-between p-5 text-lg font-semibold dark:text-white">
-                                            <h5>Add Role</h5>
-                                            <button
-                                                type="button"
-                                                onClick={() => setModal(false)}
-                                                className="text-white-dark hover:text-dark"
-                                            >
-                                                <IconX className="w-5 h-5" />
-                                            </button>
+                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg text-black dark:text-white-dark">
+                                        <button
+                                            type="button"
+                                            onClick={() => setModal(false)}
+                                            className="absolute top-4 ltr:right-4 rtl:left-4 text-gray-400 hover:text-gray-800 dark:hover:text-gray-600 outline-none"
+                                        >
+                                            <IconX />
+                                        </button>
+                                        <div className="text-lg font-medium bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">
+                                            {!params.id
+                                                ? "Thêm vai trò"
+                                                : "Sửa vai trò"}
                                         </div>
                                         <div className="p-5">
-                                            <form onSubmit={handleSubmit}>
-                                                {/* <div>{error}</div> */}
-                                                <div className="relative mb-4">
-                                                    <TextInput
+                                            <form>
+                                                <div className="mb-5">
+                                                    <label htmlFor="lastName">
+                                                        Tên vai trò
+                                                    </label>
+                                                    <input
+                                                        id="lastName"
                                                         type="text"
-                                                        placeholder="Text"
+                                                        placeholder="Nhập họ"
                                                         className="form-input"
-                                                        value=""
-                                                        // onChange={(e) => handleInputChange('text', e.target.value)}
+                                                        value={params.lastName}
+                                                        onChange={(e) =>
+                                                            changeValue(e)
+                                                        }
                                                     />
                                                 </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>
-                                                            Accounts Manager
-                                                        </span>
+                                                {/* <div className="mb-5">
+                                                    <label htmlFor="role">
+                                                        Role
                                                     </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>
-                                                            Dashboard Manager
-                                                        </span>
-                                                    </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>
-                                                            Sales Manager
-                                                        </span>
-                                                    </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>Blogger</span>
-                                                    </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>Blogger</span>
-                                                    </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>
-                                                            Sales Manager
-                                                        </span>
-                                                    </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>
-                                                            Dashboard Manager
-                                                        </span>
-                                                    </label>
-                                                    <label className="inline-flex">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-checkbox text-warning"
-                                                        />
-                                                        <span>
-                                                            Accounts Manager
-                                                        </span>
-                                                    </label>
+                                                    <SelectInput
+                                                        id="role"
+                                                        className="form-select"
+                                                        options={options}
+                                                        value={selectedValue}
+                                                        onChange={
+                                                            handleSelectChange
+                                                        }
+                                                    ></SelectInput>
+                                                </div> */}
+                                                <div className="flex justify-end items-center mt-8">
+                                                    <Button
+                                                        variant="filled"
+                                                        color="gray"
+                                                        onClick={() =>
+                                                            setModal(false)
+                                                        }
+                                                        className="me-2"
+                                                    >
+                                                        Huỷ
+                                                    </Button>
+                                                    <Button
+                                                        variant="filled"
+                                                        color="blue"
+                                                        // onClick={saveUser}
+                                                    >
+                                                        {params.id
+                                                            ? "Cập nhật"
+                                                            : "Thêm mới"}
+                                                    </Button>
                                                 </div>
-                                                <button
-                                                    type="submit"
-                                                    className="btn btn-primary w-full"
-                                                >
-                                                    Submit
-                                                </button>
                                             </form>
                                         </div>
                                     </Dialog.Panel>

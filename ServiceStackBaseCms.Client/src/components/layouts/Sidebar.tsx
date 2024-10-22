@@ -41,14 +41,35 @@ const Sidebar = () => {
         {
             label: "Người dùng",
             path: "/users-manager",
-            permission: "manage_users",
-            icon: <IconMenuUsers />
+            permission: "",
+            icon: <IconMenuUsers />,
         },
         {
             label: "Quản lý Trang",
             path: "/pages",
             permission: "",
-            icon: <IconNotesEdit />
+            icon: <IconNotesEdit />,
+        },
+        // {
+        //     label: "Quản lý roles",
+        //     path: "/roles-manager",
+        //     permission: "",
+        //     icon: <IconNotesEdit />,
+        // },
+        // {
+        //     label: "Quản lý permission",
+        //     path: "/permission-manager",
+        //     permission: "",
+        //     icon: <IconNotesEdit />,
+        // },
+        {
+            label: "Phân quyền",
+            submenu: [
+                { label: "Quản lý vai trò", path: "/roles-manager" },
+                { label: "Quản lý quyền", path: "/permission-manager" },
+            ],
+            permission: "",
+            icon: <IconSettings />,
         },
         {
             label: "Hệ thống",
@@ -56,13 +77,13 @@ const Sidebar = () => {
                 { label: "Cài đặt", path: "/system/setting" },
                 { label: "Preview", path: "/system/preview" },
             ],
-            permission: "manage_system",
-            icon: <IconSettings />
+            permission: "",
+            icon: <IconSettings />,
         },
     ];
 
     // Filter menu items based on permissions
-    const filteredMenuItems = menuItems.filter(item => {
+    const filteredMenuItems = menuItems.filter((item) => {
         return !item.permission || hasPermission(item.permission);
     });
 
@@ -127,7 +148,8 @@ const Sidebar = () => {
                                                 </div>
                                                 <div
                                                     className={
-                                                        currentMenu !== item.label
+                                                        currentMenu !==
+                                                        item.label
                                                             ? "rtl:rotate-90 -rotate-90"
                                                             : ""
                                                     }
@@ -144,13 +166,21 @@ const Sidebar = () => {
                                                 }
                                             >
                                                 <ul className="sub-menu text-gray-500">
-                                                    {item.submenu.map((subItem, subIndex) => (
-                                                        <li key={subIndex}>
-                                                            <NavLink to={subItem.path}>
-                                                                {subItem.label}
-                                                            </NavLink>
-                                                        </li>
-                                                    ))}
+                                                    {item.submenu.map(
+                                                        (subItem, subIndex) => (
+                                                            <li key={subIndex}>
+                                                                <NavLink
+                                                                    to={
+                                                                        subItem.path
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        subItem.label
+                                                                    }
+                                                                </NavLink>
+                                                            </li>
+                                                        )
+                                                    )}
                                                 </ul>
                                             </AnimateHeight>
                                         </>
