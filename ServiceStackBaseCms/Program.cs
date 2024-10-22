@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ServiceStackBaseCms.Components.Services;
 using ServiceStackBaseCms.Data;
 using ServiceStackBaseCms.Domain.Entities;
 using ServiceStackBaseCms.ServiceInterface;
@@ -42,7 +43,7 @@ services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserClaimsPrincipalFactory>();
 
 // Register all services
-services.AddServiceStack(typeof(MyServices).Assembly);
+services.AddServiceStack(typeof(MainService).Assembly);
 
 var app = builder.Build();
 

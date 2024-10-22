@@ -1,4 +1,5 @@
-﻿using ServiceStack.Auth;
+﻿using iZota.Core.Shared;
+
 using ServiceStackBaseCms.Domain.Entities;
 using ServiceStackBaseCms.ServiceModel;
 using Roles = ServiceStackBaseCms.Domain.Entities.Roles;

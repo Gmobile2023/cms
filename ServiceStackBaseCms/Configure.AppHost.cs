@@ -8,8 +8,9 @@ namespace ServiceStackBaseCms;
 
 public class AppHost : AppHostBase, IHostingStartup
 {
-    public AppHost() : base("ServiceStackBaseCms", typeof(MainService).Assembly)
+    public AppHost() : base("ServiceStackBaseCms")
     {
+        
     }
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices((context, services) => {
