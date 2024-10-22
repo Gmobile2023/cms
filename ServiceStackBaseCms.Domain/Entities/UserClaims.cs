@@ -4,5 +4,5 @@ namespace ServiceStackBaseCms.Domain.Entities;
 
 public class UserClaims : IdentityUserClaim<string>
 {
-    
+    public string Id { get; set; }
 }
