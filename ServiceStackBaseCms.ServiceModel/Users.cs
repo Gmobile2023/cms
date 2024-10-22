@@ -19,7 +19,7 @@ public class UserRequest
 }
 
 [Tag("Admin")]
-[ValidateHasRole("Admin")]
+// [ValidateHasRole("Admin")]
 [Route("/user", "POST")]
 public class CreateUserRequest
 {
@@ -62,7 +62,7 @@ public class CreateUserRequest
 }
 
 [Tag("Admin")]
-[ValidateHasRole("Admin")]
+// [ValidateHasRole("Admin")]
 [Route("/user", "PUT")]
 public class UpdateUserRequest
 {

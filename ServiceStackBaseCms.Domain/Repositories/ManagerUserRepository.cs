@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
@@ -57,19 +55,29 @@ public class ManagerUserRepository : IManagerUserRepository
     public async Task<bool> UpdateUser(UpdateUserRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
+        using var trans = db.OpenTransaction();
         try
         {
-            var user = request.ConvertTo<Users>();
-            var result = await db.UpdateAsync(user);
-            if (result != 0)
+            
+            var user  = await db.SingleByIdAsync<Users>(request.Id) ;
+            user.Email = request.Email;
+            await _userManager.UpdateAsync(user);
+           
+            // user.ConcurrencyStamp = checkUser.ConcurrencyStamp;
+            // user.NormalizedEmail = user.NormalizedEmail.ToUpper();
+            // user.NormalizedUserName = user.NormalizedEmail.ToUpper();
+            // var result = await db.UpdateAsync(user);
+            if (true)
             {
                 var listRole = await _userManager.GetRolesAsync(user);
                 if (request.Roles != null && listRole != null)
                 {
                     await _userManager.RemoveFromRolesAsync(user, listRole);
                     var role = await _userManager.AddToRolesAsync(user, request.Roles);
+                    
                     if (role.Succeeded)
                     {
+                        trans.Commit();
                         return true;
                     }
                     else
@@ -82,6 +90,7 @@ public class ManagerUserRepository : IManagerUserRepository
         }
         catch (Exception e)
         {
+            trans.Rollback();
             return false;
         }
     }
