@@ -4,9 +4,15 @@ import { useDispatch } from "react-redux";
 import { Dialog, Transition } from "@headlessui/react";
 import IconX from "@/components/Icon/IconX";
 import { SelectInput, TextInput } from "@/components/Form";
-import { getRoleClaims, getRoles } from "@/services/rolesService";
+import {
+    CreateRole,
+    getRoleClaims,
+    getRoles,
+    UpdateRole,
+} from "@/services/rolesService";
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
+import Swal from "sweetalert2";
 
 const Roles = () => {
     const dispatch = useDispatch();
@@ -31,17 +37,23 @@ const Roles = () => {
         id: null,
         name: "",
         normalizedName: "",
+        concurrencyStamp: null,
     });
 
     const [params, setParams] = useState<any>(
         JSON.parse(JSON.stringify(defaultParams))
     );
 
+    const changeValue = (e: any) => {
+        const { value, id } = e.target;
+        setParams({ ...params, [id]: value });
+    };
+
     const getAllRoles = async () => {
         try {
             const response = await getRoles();
             if (response.success) {
-                setRoles(response.response.items || []);
+                setRoles(response.response.results || []);
                 // console.log(response);
             } else {
                 // setError(api.error);
@@ -58,7 +70,7 @@ const Roles = () => {
         try {
             const response = await getRoleClaims();
             if (response.success) {
-                setRoleClaims(response.response.items || []);
+                setRoleClaims(response.response.results || []);
                 // console.log(response);
             } else {
                 // setError(api.error);
@@ -72,7 +84,46 @@ const Roles = () => {
         }
     };
 
-    const handleSubmit = () => {};
+    const handleEditRole = (data: any = null) => {
+        const json = JSON.parse(JSON.stringify(defaultParams));
+        setParams(json);
+        if (data) {
+            let json1 = JSON.parse(JSON.stringify(data));
+            setParams(json1);
+        }
+        openModal();
+    };
+
+    const handleSubmit = async () => {
+        if (params.id) {
+            // Update role
+            let data = {
+                id: params.id,
+                name: params.name,
+                normalizedName: params.name,
+                concurrencyStamp: null,
+            };
+            const api = await UpdateRole(data);
+            if (api.response && api.success) {
+                showMessage("Cập nhật thành công!");
+                getAllRoles();
+            }
+        } else {
+            // Create role
+            let data = {
+                name: params.name,
+                normalizedName: params.name,
+                concurrencyStamp: null,
+            };
+            const api = await CreateRole(data);
+            if (api.response && api.success) {
+                showMessage("Tạo thành công!");
+                getAllRoles();
+            }
+        }
+        setParams(defaultParams);
+        setModal(false);
+    };
 
     const handleDelete = (record: any) => {
         console.log("Delete record:", record);
@@ -82,9 +133,19 @@ const Roles = () => {
         setModal(true);
     };
 
-    const changeValue = (e: any) => {
-        const { value, id } = e.target;
-        setParams({ ...params, [id]: value });
+    const showMessage = (msg = "", type = "success") => {
+        const toast: any = Swal.mixin({
+            toast: true,
+            position: "top",
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: { container: "toast" },
+        });
+        toast.fire({
+            icon: type,
+            title: msg,
+            padding: "10px 20px",
+        });
     };
 
     return (
@@ -106,13 +167,6 @@ const Roles = () => {
                         </div>
                     </div>
                     <div className="datatables">
-                        {/* <input
-                            type="text"
-                            className="form-input w-auto mb-4"
-                            placeholder="Tìm kiếm..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        /> */}
                         <DataTable
                             className="whitespace-nowrap table-hover"
                             records={roles}
@@ -128,6 +182,14 @@ const Roles = () => {
                                                 </Button>
                                             </Menu.Target>
                                             <Menu.Dropdown>
+                                                <Menu.Item
+                                                    color="red"
+                                                    onClick={() =>
+                                                        handleEditRole(record)
+                                                    }
+                                                >
+                                                    Chỉnh sửa
+                                                </Menu.Item>
                                                 <Menu.Item
                                                     color="red"
                                                     onClick={() =>
@@ -207,15 +269,15 @@ const Roles = () => {
                                         <div className="p-5">
                                             <form>
                                                 <div className="mb-5">
-                                                    <label htmlFor="lastName">
+                                                    <label htmlFor="name">
                                                         Tên vai trò
                                                     </label>
                                                     <input
-                                                        id="lastName"
+                                                        id="name"
                                                         type="text"
-                                                        placeholder="Nhập họ"
+                                                        placeholder="Nhập tên vai trò"
                                                         className="form-input"
-                                                        value={params.lastName}
+                                                        value={params.name}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -249,7 +311,7 @@ const Roles = () => {
                                                     <Button
                                                         variant="filled"
                                                         color="blue"
-                                                        // onClick={saveUser}
+                                                        onClick={handleSubmit}
                                                     >
                                                         {params.id
                                                             ? "Cập nhật"
