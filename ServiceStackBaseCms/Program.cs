@@ -43,7 +43,7 @@ services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserClaimsPrincipalFactory>();
 
 // Register all services
-services.AddServiceStack(typeof(MainService).Assembly);
+services.AddServiceStack(typeof(MyServices).Assembly);
 
 var app = builder.Build();
 
