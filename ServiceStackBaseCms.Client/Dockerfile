@@ -20,7 +20,7 @@ RUN npm run build
 FROM nginx:stable-alpine
 
 # Copy the default Nginx configuration file
-COPY ServiceStackBaseCms.Client/default.conf /etc/nginx/conf.d/default.conf
+COPY ./default.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built files from the build stage to the Nginx web root
 COPY --from=build /app/dist /usr/share/nginx/html
