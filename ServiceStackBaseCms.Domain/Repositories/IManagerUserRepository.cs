@@ -1,5 +1,5 @@
-﻿
-using ServiceStack;
+﻿using iZota.Core.Shared;
+
 using ServiceStackBaseCms.Domain.Entities;
 using ServiceStackBaseCms.ServiceModel;
 using Roles = ServiceStackBaseCms.Domain.Entities.Roles;
@@ -10,13 +10,13 @@ public interface IManagerUserRepository
     Task<bool> CreateUser(CreateUserRequest request);
     Task<bool> UpdateUser(UpdateUserRequest request);
     Task<UserDto> GetUser(string id);
-    Task<QueryResponse<UserDto>> GetUsers(UsersRequest request);
-    Task<QueryResponse<Roles>> GetRoles(RolesRequest request);
-    Task<QueryResponse<UserClaims>> GetUserClaims(UserClaimsRequest request);
+    Task<PagedResultDto<UserDto>> GetUsers(UsersRequest request);
+    Task<PagedResultDto<Roles>> GetRoles(RolesRequest request);
+    Task<PagedResultDto<UserClaims>> GetUserClaims(UserClaimsRequest request);
     Task<bool> CreateUserClaim(CreateUserClaimRequest request);
     Task<bool> UpdateUserClaim(UpdateUserClaimRequest request);
     Task<UserClaims> GetUserClaim(UserClaimRequest request);
-    Task<QueryResponse<RoleClaims>> GetRoleClaims(RoleClaimsRequest request);
+    Task<PagedResultDto<RoleClaims>> GetRoleClaims(RoleClaimsRequest request);
     Task<bool> UpdateRoleClaim(UpdateRoleClaim request);
     Task<bool> CreateRoleClaim(CreateRoleClaim request);
     Task<RoleClaims> GetRoleClaim(RoleClaimRequest request);

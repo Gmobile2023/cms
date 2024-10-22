@@ -1,4 +1,4 @@
-﻿
+﻿using iZota.Core.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ServiceStack;
@@ -86,7 +86,7 @@ public class ManagerUserRepository : IManagerUserRepository
         }
     }
     
-    public async Task<QueryResponse<Roles>> GetRoles(RolesRequest request)
+    public async Task<PagedResultDto<Roles>> GetRoles(RolesRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
         try
@@ -97,38 +97,45 @@ public class ManagerUserRepository : IManagerUserRepository
                 query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
             }
 
-            var total = (int)db.Count(query);
-            query.Skip(request.Skip).Take(request.Take);
+            var total = db.Count(query);
             var roles = await db.SelectAsync(query);
-            return new QueryResponse<Roles>()
+            return new PagedResultDto<Roles>()
             {
-                Results = roles,
-                Total = total
+                Items = roles,
+                TotalCount = total
             };
         }
         catch (Exception e)
         {
-            return new QueryResponse<Roles>();
+            return new PagedResultDto<Roles>()
+            {
+                Items = new List<Roles>(),
+                TotalCount = 0
+            };
         }
     }
 
-    public async Task<QueryResponse<UserClaims>> GetUserClaims(UserClaimsRequest request)
+    public async Task<PagedResultDto<UserClaims>> GetUserClaims(UserClaimsRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
         try
         {
             var query =  db.From<UserClaims>();
-            var total = (int)db.Count(query);
+            var total = db.Count(query);
             var userClaims = await db.SelectAsync(query);
-            return new QueryResponse<UserClaims>()
+            return new PagedResultDto<UserClaims>()
             {
-                Results = userClaims,
-                Total = total
+                Items = userClaims,
+                TotalCount = total
             };
         }
         catch (Exception e)
         {
-            return new QueryResponse<UserClaims>();
+            return new PagedResultDto<UserClaims>()
+            {
+                Items = new List<UserClaims>(),
+                TotalCount = 0
+            };
         }
     }
 
@@ -237,23 +244,27 @@ public class ManagerUserRepository : IManagerUserRepository
         }
     }
 
-    public async Task<QueryResponse<RoleClaims>> GetRoleClaims(RoleClaimsRequest request)
+    public async Task<PagedResultDto<RoleClaims>> GetRoleClaims(RoleClaimsRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
         try
         {
             var query =  db.From<RoleClaims>();
-            var total = (int)db.Count(query);
+            var total = db.Count(query);
             var roleClaims = await db.SelectAsync(query);
-            return new QueryResponse<RoleClaims>()
+            return new PagedResultDto<RoleClaims>()
             {
-                Results = roleClaims,
-                Total = total
+                Items = roleClaims,
+                TotalCount = total
             };
         }
         catch (Exception e)
         {
-            return new QueryResponse<RoleClaims>();
+            return new PagedResultDto<RoleClaims>()
+            {
+                Items = new List<RoleClaims>(),
+                TotalCount = 0
+            };
         }
     }
 
@@ -291,18 +302,18 @@ public class ManagerUserRepository : IManagerUserRepository
         }
     }
 
-    public async Task<QueryResponse<UserDto>> GetUsers(UsersRequest request)
+    public async Task<PagedResultDto<UserDto>> GetUsers(UsersRequest request)
     {
         using var db =  _connectionFactory.OpenDbConnection();
         try
         {
             var query = db.From<Users>();
-            var total = (int)db.Count(query);
-            query.Skip(request.Skip).Take(request.Take);
+            var total = db.Count(query);
+            query.Skip(request.SkipCount).Take(request.MaxResultCount);
             var users = db.Select<Users>(query);
             var Roles = db.SelectMulti<Roles, UserRoles>(
                 db.From<Roles>()
-                    .Join<UserRoles>((ur, r) => ur.Id == r.RoleId)
+                    .LeftJoin<UserRoles>((ur, r) => ur.Id == r.RoleId)
             );
             var userRoleMap = Roles.GroupBy(tuple => tuple.Item2.UserId)
                 .ToDictionary(
@@ -323,15 +334,19 @@ public class ManagerUserRepository : IManagerUserRepository
                     : new List<string>()
             }).ToList();
 
-            return new QueryResponse<UserDto>()
+            return new PagedResultDto<UserDto>()
             {
-               Total = total,
-               Results = usersWithRoles,
+                Items = usersWithRoles,
+                TotalCount = total
             };
         }
         catch (Exception e)
         {
-            return new QueryResponse<UserDto>();
+            return new PagedResultDto<UserDto>()
+            {
+                Items = new List<UserDto>(),
+                TotalCount = 0,
+            };
         }
     }
     

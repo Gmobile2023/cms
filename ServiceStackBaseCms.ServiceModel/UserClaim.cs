@@ -5,7 +5,7 @@ namespace ServiceStackBaseCms.ServiceModel;
 
 [Tag("UserClaims")]
 [Route("/UserClaims", "GET")]
-public class UserClaimsRequest : QueryBase
+public class UserClaimsRequest
 {
     
 }

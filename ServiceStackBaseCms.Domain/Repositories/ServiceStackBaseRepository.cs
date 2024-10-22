@@ -1,4 +1,5 @@
-﻿using ServiceStack;
+﻿using iZota.Core.Shared;
+using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using ServiceStackBaseCms.Domain.Entities;
@@ -15,26 +16,26 @@ public class ServiceStackBaseRepository : IServiceStackBaseRepository
     {
         _connectionFactory = connectionFactory;
     }
-    public async Task<QueryResponse<Todo>> GetListTodoAsync()
+    public async Task<PagedResultDto<Todo>> GetListTodoAsync()
     {
        using var db =  _connectionFactory.OpenDbConnection();
        try
        {
            var query = db.From<Todo>();
-           var total =(int) db.Count(query);
+           var total = db.Count(query);
            var todos = await db.SelectAsync(query);
-           return new QueryResponse<Todo>()
+           return new PagedResultDto<Todo>()
            {
-               Total = total,
-               Results = todos,
+               TotalCount = total,
+               Items = todos,
            };
        }
        catch (Exception ex)
        {
-           return new QueryResponse<Todo>()
+           return new PagedResultDto<Todo>()
            {
-               Total = 0,
-               Results = new List<Todo>(),
+               TotalCount = 0,
+               Items = new List<Todo>(),
            };
        }
 
