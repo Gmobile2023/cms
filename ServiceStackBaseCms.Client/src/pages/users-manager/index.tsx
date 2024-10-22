@@ -2,17 +2,33 @@ import { useState, Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Swal from "sweetalert2";
 import { useDispatch } from "react-redux";
-import IconUserPlus from "../../components/Icon/IconUserPlus";
-import IconSearch from "../../components/Icon/IconSearch";
-import IconUser from "../../components/Icon/IconUser";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
 import { CreateUser, fetchAllUser, UpdateUser } from "@/services/usersService";
+import { getRoles } from "@/services/rolesService";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Menu } from "@mantine/core";
+import { DataTable, DataTableSortStatus } from "mantine-datatable";
+import moment from "moment";
+import Select from "react-select";
 
 const UsersManager = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
+    const PAGE_SIZES = [10, 20, 30, 50, 100];
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
+        columnAccessor: "id",
+        direction: "asc",
+    });
+    const [recordsData, setRecordsData] = useState<any[]>([]);
+    const [roles, setRoles] = useState<any[]>([]);
+    const [selectedValue, setSelectedValue] = useState<string>("");
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
     useEffect(() => {
         dispatch(setPageTitle("Users Manager"));
@@ -38,22 +54,67 @@ const UsersManager = () => {
         }
     };
 
+    const getAllRoles = async () => {
+        try {
+            const response = await getRoles();
+            if (response.success) {
+                setRoles(response.response.items || []);
+            } else {
+                // setError(api.error);
+                console.log(response.error);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
+    const handleView = (record: any) => {
+        console.log("View record:", record);
+    };
+
     useEffect(() => {
         fetchUsers();
+        getAllRoles();
     }, []);
 
     const [addUserModal, setAddUserModal] = useState<any>(false);
 
     const [defaultParams] = useState({
         id: null,
+        firstName: "",
+        lastName: "",
         userName: "",
         email: "",
         password: "",
+        roleName: [],
     });
 
     const [params, setParams] = useState<any>(
         JSON.parse(JSON.stringify(defaultParams))
     );
+
+    useEffect(() => {
+        if (params.roleName) {
+            setSelectedRoles(params.roleName);
+        }
+    }, [params]);
+
+    const handleRoleChange = (role: string) => {
+        setSelectedRoles((prevSelectedRoles) =>
+            prevSelectedRoles.includes(role)
+                ? prevSelectedRoles.filter((r) => r !== role)
+                : [...prevSelectedRoles, role]
+        );
+    };
+
+    const handleSaveUser = () => {
+        // Gán selectedRoles vào params.roleName
+        params.roleName = selectedRoles; // Hoặc tạo một bản sao mới của params
+        saveUser(); // Gọi hàm lưu
+    };
 
     const changeValue = (e: any) => {
         const { value, id } = e.target;
@@ -87,26 +148,39 @@ const UsersManager = () => {
         //     showMessage("Password is required.", "error");
         //     return true;
         // }
+        params.roleName = selectedRoles;
 
         if (params.id) {
             // Update user
             let user = {
+                id: params.id,
+                firstName: params.firstName,
+                lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 // password: params.password,
+                roles: ["Admin"],
             };
             const response = await UpdateUser(user);
-            console.log(response);
+            if (response.success) {
+                showMessage("Cập nhật người dùng thành công!.");
+                fetchUsers();
+            }
         } else {
             let user = {
+                firstName: params.firstName,
+                lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 password: params.password,
+                roles: params.role,
             };
             const response = await CreateUser(user);
-            showMessage("Người dùng đã được thêm thành công!.");
+            if (response.success) {
+                showMessage("Người dùng đã được thêm thành công!.");
+                fetchUsers();
+            }
         }
-
         setAddUserModal(false);
     };
 
@@ -140,92 +214,108 @@ const UsersManager = () => {
         });
     };
 
+    const options = roles.reduce((acc, item) => {
+        acc[item.name] = item.normalizedName;
+        return acc;
+    }, {} as Record<string, string>);
+
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        // console.log(e.target.value);
+        setSelectedValue(e.target.value);
+    };
+
     return (
-        <div>
-            <div className="panel">
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <h5 className="font-semibold text-lg dark:text-white-light">
-                        Quản lý người dùng
-                    </h5>
-                </div>
-                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-3 gap-4 w-full sm:w-auto">
-                    <div className="flex gap-3">
-                        <div>
-                            <button
-                                type="button"
-                                className="btn btn-primary"
+        <>
+            <div>
+                <div className="panel">
+                    <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
+                        <h5 className="font-semibold text-lg dark:text-white-light">
+                            Quản lý người dùng
+                        </h5>
+                        <div className="ml-auto">
+                            <Button
+                                variant="filled"
+                                color="blue"
                                 onClick={() => editUser()}
                             >
-                                <IconUserPlus className="ltr:mr-2 rtl:ml-2" />
                                 Thêm mới
-                            </button>
+                            </Button>
                         </div>
                     </div>
-                    <div className="relative">
+                    <div className="datatables">
                         <input
                             type="text"
-                            placeholder="Tìm kiếm"
-                            className="form-input py-2 ltr:pr-11 rtl:pl-11 peer"
+                            className="form-input w-auto mb-4"
+                            placeholder="Tìm kiếm..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
-                        <button
-                            type="button"
-                            className="absolute ltr:right-[11px] rtl:left-[11px] top-1/2 -translate-y-1/2 peer-focus:text-primary"
-                        >
-                            <IconSearch className="mx-auto" />
-                        </button>
-                    </div>
-                </div>
-                <div className="mt-5 panel p-0 border-0 overflow-hidden">
-                    <div className="table-responsive">
-                        <table className="table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Họ tên</th>
-                                    <th>Email</th>
-                                    <th className="!text-center">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredItems.map((user: any, index: any) => {
-                                    return (
-                                        <tr key={index}>
-                                            <td>
-                                                <div>{index + 1}</div>
-                                            </td>
-                                            <td>
-                                                <div>{user.userName}</div>
-                                            </td>
-                                            <td>{user.email}</td>
-                                            <td>
-                                                <div className="flex gap-4 items-center justify-center">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-warning"
-                                                        onClick={() =>
-                                                            editUser(user)
-                                                        }
-                                                    >
-                                                        Sửa
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-danger"
-                                                        onClick={() =>
-                                                            deleteUser(user)
-                                                        }
-                                                    >
-                                                        Xoá
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                        <DataTable
+                            className="whitespace-nowrap table-hover"
+                            records={filteredItems}
+                            columns={[
+                                {
+                                    accessor: "action",
+                                    title: "Hành động",
+                                    render: (record) => (
+                                        <Menu>
+                                            <Menu.Target>
+                                                <Button size="xs">
+                                                    Hành động
+                                                </Button>
+                                            </Menu.Target>
+                                            <Menu.Dropdown>
+                                                <Menu.Item
+                                                    onClick={() =>
+                                                        handleView(record)
+                                                    }
+                                                >
+                                                    Xem chi tiết
+                                                </Menu.Item>
+                                                <Menu.Item
+                                                    onClick={() =>
+                                                        editUser(record)
+                                                    }
+                                                >
+                                                    Chỉnh sửa
+                                                </Menu.Item>
+                                                <Menu.Item
+                                                    color="red"
+                                                    onClick={() =>
+                                                        deleteUser(record)
+                                                    }
+                                                >
+                                                    Xoá
+                                                </Menu.Item>
+                                            </Menu.Dropdown>
+                                        </Menu>
+                                    ),
+                                },
+                                {
+                                    accessor: "userName",
+                                    sortable: true,
+                                    title: "Tên",
+                                },
+                                {
+                                    accessor: "email",
+                                    sortable: true,
+                                    title: "Email",
+                                },
+                            ]}
+                            highlightOnHover
+                            totalRecords={0}
+                            recordsPerPage={pageSize}
+                            page={page}
+                            onPageChange={(p) => setPage(p)}
+                            recordsPerPageOptions={PAGE_SIZES}
+                            onRecordsPerPageChange={setPageSize}
+                            sortStatus={sortStatus}
+                            onSortStatusChange={setSortStatus}
+                            minHeight={200}
+                            paginationText={({ from, to, totalRecords }) =>
+                                `Hiển thị ${from} - ${to} / ${totalRecords} kết quả`
+                            }
+                        />
                     </div>
                 </div>
                 <Transition appear show={addUserModal} as={Fragment}>
@@ -257,7 +347,7 @@ const UsersManager = () => {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg text-black dark:text-white-dark">
+                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-2xl text-black dark:text-white-dark">
                                         <button
                                             type="button"
                                             onClick={() =>
@@ -353,43 +443,68 @@ const UsersManager = () => {
                                                         />
                                                     </div>
                                                 )}
-
-                                                {/* <div className="mb-5">
-                                                    <label htmlFor="email">
-                                                        Password
+                                                <div className="mb-5">
+                                                    <label htmlFor="role">
+                                                        Role
                                                     </label>
-                                                    <input
-                                                        id="password"
-                                                        type="password"
-                                                        placeholder="Enter Password"
-                                                        className="form-input"
-                                                        value={params.password}
-                                                        onChange={(e) =>
-                                                            changeValue(e)
-                                                        }
-                                                    />
-                                                </div> */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                                        {roles.map(
+                                                            (
+                                                                role: any,
+                                                                index
+                                                            ) => {
+                                                                return (
+                                                                    <label
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="inline-flex"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="form-checkbox text-info"
+                                                                            checked={selectedRoles.includes(
+                                                                                role.name
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                handleRoleChange(
+                                                                                    role.name
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                role.name
+                                                                            }
+                                                                        </span>
+                                                                    </label>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </div>
+                                                </div>
                                                 <div className="flex justify-end items-center mt-8">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-danger"
+                                                    <Button
+                                                        variant="filled"
+                                                        color="gray"
                                                         onClick={() =>
                                                             setAddUserModal(
                                                                 false
                                                             )
                                                         }
+                                                        className="me-2"
                                                     >
                                                         Huỷ
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                                                    </Button>
+                                                    <Button
+                                                        variant="filled"
+                                                        color="blue"
                                                         onClick={saveUser}
                                                     >
                                                         {params.id
                                                             ? "Cập nhật"
                                                             : "Thêm mới"}
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                             </form>
                                         </div>
@@ -400,7 +515,7 @@ const UsersManager = () => {
                     </Dialog>
                 </Transition>
             </div>
-        </div>
+        </>
     );
 };
 

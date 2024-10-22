@@ -1,8 +1,10 @@
-﻿using ServiceStack;
+﻿using Microsoft.AspNetCore.Authorization;
+using ServiceStack;
 
 namespace ServiceStackBaseCms.ServiceModel;
 
 [Tag("Admin")]
+
 [Route("/users", "GET")]
 public class UsersRequest : PagedAndSortedRequest
 {
@@ -17,6 +19,7 @@ public class UserRequest
 }
 
 [Tag("Admin")]
+[ValidateHasRole("Admin")]
 [Route("/user", "POST")]
 public class CreateUserRequest
 {
@@ -59,6 +62,7 @@ public class CreateUserRequest
 }
 
 [Tag("Admin")]
+[ValidateHasRole("Admin")]
 [Route("/user", "PUT")]
 public class UpdateUserRequest
 {
