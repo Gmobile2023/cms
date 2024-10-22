@@ -45,6 +45,11 @@ public class MainService : Service
     {
         return await _managerUserRepository.CreateUser(request);
     }
+    
+    // public async Task<object> PostAsync(PermissionsRequest request)
+    // {
+    //     return QueryResponse()
+    // }
 
     public async Task<object> PutAsync(UpdateUserRequest request)
     {

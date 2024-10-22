@@ -1,6 +1,11 @@
-﻿namespace ServiceStackBaseCms.ServiceModel;
+﻿using ServiceStack;
 
-internal class Permission
+namespace ServiceStackBaseCms.ServiceModel;
+
+
+[Tag("Permission")]
+[Route("/permissions", "GET")]
+public class PermissionsRequest : QueryBase
 {
     
 }

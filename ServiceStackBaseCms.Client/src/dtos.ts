@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-22 13:35:27
+Date: 2024-10-22 16:29:05
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -648,7 +648,6 @@ export class UpdateRoleClaim
 // @Route("/RoleClaim", "POST")
 export class CreateRoleClaim
 {
-    public id: number;
     public roleId: string;
     public claimType?: string;
     public claimValue?: string;
