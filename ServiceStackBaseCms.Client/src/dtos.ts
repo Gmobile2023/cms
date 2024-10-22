@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-22 10:31:53
+Date: 2024-10-22 13:35:27
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -63,16 +63,6 @@ export interface IPatchDb<Table>
 
 export interface IDeleteDb<Table>
 {
-}
-
-export class PagedAndSortedRequest
-{
-    public sorting: string;
-    public filter: string;
-    public skipCount: number;
-    public maxResultCount: number;
-
-    public constructor(init?: Partial<PagedAndSortedRequest>) { (Object as any).assign(this, init); }
 }
 
 // @DataContract
@@ -454,7 +444,6 @@ export class UpdateTodoRequest implements IReturn<TodoDto>, IPut
 }
 
 // @Route("/user", "POST")
-// @ValidateRequest(Validator="HasRole(`Admin`)")
 export class CreateUserRequest
 {
     public firstName?: string;
@@ -483,7 +472,6 @@ export class CreateUserRequest
 }
 
 // @Route("/user", "PUT")
-// @ValidateRequest(Validator="HasRole(`Admin`)")
 export class UpdateUserRequest
 {
     public id?: string;
@@ -513,7 +501,7 @@ export class UpdateUserRequest
 }
 
 // @Route("/users", "GET")
-export class UsersRequest extends PagedAndSortedRequest
+export class UsersRequest extends QueryBase
 {
     public name: string;
 
@@ -535,11 +523,11 @@ export class UserRequest
 }
 
 // @Route("/roles", "GET")
-export class RolesRequest
+export class RolesRequest extends QueryBase
 {
     public name: string;
 
-    public constructor(init?: Partial<RolesRequest>) { (Object as any).assign(this, init); }
+    public constructor(init?: Partial<RolesRequest>) { super(init); (Object as any).assign(this, init); }
     public getTypeName() { return 'RolesRequest'; }
     public getMethod() { return 'GET'; }
     public createResponse() {}
@@ -557,10 +545,10 @@ export class UserClaimRequest
 }
 
 // @Route("/UserClaims", "GET")
-export class UserClaimsRequest
+export class UserClaimsRequest extends QueryBase
 {
 
-    public constructor(init?: Partial<UserClaimsRequest>) { (Object as any).assign(this, init); }
+    public constructor(init?: Partial<UserClaimsRequest>) { super(init); (Object as any).assign(this, init); }
     public getTypeName() { return 'UserClaimsRequest'; }
     public getMethod() { return 'GET'; }
     public createResponse() {}
