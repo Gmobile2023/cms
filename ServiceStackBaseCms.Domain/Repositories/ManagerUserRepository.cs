@@ -14,10 +14,12 @@ public class ManagerUserRepository : IManagerUserRepository
 {
     private readonly IDbConnectionFactory _connectionFactory;
     private readonly UserManager<ApplicationUser> _userManager;
-    public ManagerUserRepository(IDbConnectionFactory connectionFactory, UserManager<ApplicationUser> userManager)
+    private readonly RoleManager<IdentityRole> _roleManager;
+    public ManagerUserRepository(IDbConnectionFactory connectionFactory, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _connectionFactory = connectionFactory;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
     public async Task<bool> CreateUser(CreateUserRequest request)
     {
@@ -279,8 +281,9 @@ public class ManagerUserRepository : IManagerUserRepository
         try
         {
             var role = request.ConvertTo<Roles>();
-            await db.InsertAsync(role,true);
-            var listRoleClaim = new List<RoleClaims>();
+            role.Id = Guid.NewGuid().ToString();
+            role.NormalizedName = role.Name.ToUpper();
+            await db.InsertAsync(role);
             if (request.RoleClaims != null)
             {
                 foreach (var roleClaim in request.RoleClaims)
@@ -291,11 +294,10 @@ public class ManagerUserRepository : IManagerUserRepository
                         ClaimType = roleClaim.ClaimType,
                         ClaimValue = roleClaim.ClaimValue
                     };
-                    listRoleClaim.Add(newRoleClaim);
+                   await db.InsertAsync(newRoleClaim);
                 }
             }
-
-            await db.InsertAllAsync(listRoleClaim);
+            
             return true;
         }
         catch (Exception e)
@@ -310,6 +312,7 @@ public class ManagerUserRepository : IManagerUserRepository
         try
         {
             var role = request.ConvertTo<Roles>();
+            role.NormalizedName = role.Name.ToUpper();
             await db.UpdateAsync(role);
             var listRoleClaim = new List<RoleClaims>();
             await db.DeleteAsync<RoleClaims>(x => x.RoleId == role.Id);
