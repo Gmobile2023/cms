@@ -70,7 +70,6 @@ const Roles = () => {
                 ? prevSelectedRoles.filter((r) => r !== roleClaims) // Xóa role
                 : [...prevSelectedRoles, roleClaims]; // Thêm role
 
-            console.log(updatedRoleClaims);
             return updatedRoleClaims;
         });
     };
@@ -108,6 +107,7 @@ const Roles = () => {
             // setLoading(false);
         }
     };
+
     const getPermission = async () => {
         try {
             const response = await getClaims();
@@ -135,13 +135,6 @@ const Roles = () => {
         }
         openModal();
     };
-
-    const dataAdd = [
-        {
-            claimType: "perm",
-            claimValue: "view_list_user",
-        },
-    ];
 
     const handleSubmit = async () => {
         const dataPerm = selectedRoleClaims.map((perm) => ({

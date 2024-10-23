@@ -11,7 +11,7 @@ import {
     getUser,
     UpdateUser,
 } from "@/services/usersService";
-import { getRoles } from "@/services/rolesService";
+import { getClaims, getRoles } from "@/services/rolesService";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
@@ -27,7 +27,7 @@ const UsersManager = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    // const [user, setUser] = useState(defaultParams);
+    const [perms, setPerms] = useState([]);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
 
     useEffect(() => {
@@ -61,6 +61,9 @@ const UsersManager = () => {
     );
     const [selectedRoles, setSelectedRoles] = useState<string[]>(
         params.roleName || []
+    );
+    const [selectedRoleClaims, setSelectedRoleClaims] = useState<string[]>(
+        params.roleClaims || []
     );
 
     useEffect(() => {
@@ -125,6 +128,24 @@ const UsersManager = () => {
         }
     };
 
+    const getPermission = async () => {
+        try {
+            const response = await getClaims();
+            if (response.success) {
+                setPerms(response.response.results || []);
+                // console.log(response);
+            } else {
+                // setError(api.error);
+                console.log(response);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
     const handleView = (record: any) => {
         console.log("View record:", record);
     };
@@ -132,11 +153,20 @@ const UsersManager = () => {
     useEffect(() => {
         fetchUsers();
         getAllRoles();
+        getPermission();
     }, []);
 
     useEffect(() => {
         if (params.roleName) {
             setSelectedRoles(params.roleName);
+        }
+    }, [params]);
+
+    useEffect(() => {
+        if (params.roleClaims) {
+            let data = params.roleClaims;
+            const claimValues = data.map((item: any) => item.claimValue);
+            setSelectedRoleClaims(claimValues);
         }
     }, [params]);
 
@@ -148,6 +178,17 @@ const UsersManager = () => {
                 : [...prevSelectedRoles, role]; // Thêm role
 
             return updatedRoles;
+        });
+    };
+
+    const handleRoleClaimsChange = (roleClaims: string) => {
+        setSelectedRoleClaims((prevSelectedRoles) => {
+            const isRoleClaimsSelected = prevSelectedRoles.includes(roleClaims);
+            const updatedRoleClaims = isRoleClaimsSelected
+                ? prevSelectedRoles.filter((r) => r !== roleClaims) // Xóa role
+                : [...prevSelectedRoles, roleClaims]; // Thêm role
+
+            return updatedRoleClaims;
         });
     };
 
@@ -172,6 +213,11 @@ const UsersManager = () => {
     }, [search, records]);
 
     const saveUser = async () => {
+        const dataPerm = selectedRoleClaims.map((perm) => ({
+            claimType: "perm",
+            claimValue: perm,
+        }));
+
         if (!params.userName) {
             showMessage("Name is required.", "error");
             return true;
@@ -191,13 +237,7 @@ const UsersManager = () => {
                 userName: params.userName,
                 email: params.email,
                 roles: selectedRoles,
-                userClaims: [
-                    {
-                        userId: params.id,
-                        claimType: "perm",
-                        claimValue: "view_list_user",
-                    },
-                ],
+                userClaims: dataPerm,
             };
             const response = await UpdateUser(userData);
             if (response.success) {
@@ -212,13 +252,8 @@ const UsersManager = () => {
                 email: params.email,
                 password: params.password,
                 roles: selectedRoles,
-                userId: params.id,
-                userClaims: [
-                    {
-                        claimType: "perm",
-                        claimValue: "view_list_user",
-                    },
-                ],
+                // userId: params.id,
+                userClaims: dataPerm,
             };
             const response = await CreateUser(userData);
             if (response.success) {
@@ -480,7 +515,7 @@ const UsersManager = () => {
                                                 )}
                                                 <div className="mb-5">
                                                     <label htmlFor="role">
-                                                        Role
+                                                        Chọn vai trò
                                                     </label>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                                                         {roles.map(
@@ -510,6 +545,46 @@ const UsersManager = () => {
                                                                         <span>
                                                                             {
                                                                                 role.name
+                                                                            }
+                                                                        </span>
+                                                                    </label>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="mb-5">
+                                                    <label htmlFor="role">
+                                                        Chọn quyền
+                                                    </label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                                        {perms.map(
+                                                            (
+                                                                perm: any,
+                                                                index
+                                                            ) => {
+                                                                return (
+                                                                    <label
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="inline-flex"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="form-checkbox text-info"
+                                                                            checked={selectedRoleClaims.includes(
+                                                                                perm.claimValue
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                handleRoleClaimsChange(
+                                                                                    perm.claimValue
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                perm.claimValue
                                                                             }
                                                                         </span>
                                                                     </label>
