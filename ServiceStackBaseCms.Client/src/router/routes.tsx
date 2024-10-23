@@ -53,10 +53,10 @@ const routes = [
         path: "/roles-manager",
         element: <Roles />,
     },
-    {
-        path: "/permission-manager",
-        element: <Permission />,
-    },
+    // {
+    //     path: "/permission-manager",
+    //     element: <Permission />,
+    // },
     {
         path: "/pages",
         // @ts-ignore

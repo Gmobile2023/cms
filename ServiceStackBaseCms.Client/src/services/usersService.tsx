@@ -1,9 +1,14 @@
-import { CreateUserRequest, UpdateUserRequest, UsersRequest } from "@/dtos";
+import {
+    CreateUserRequest,
+    UpdateUserRequest,
+    User,
+    UsersRequest,
+} from "@/dtos";
 import { client } from "@/gateway";
 
 export const fetchAllUser = async () => {
     try {
-        const apiResponse = await client.api(new UsersRequest());
+        const apiResponse = await client.api<any>(new UsersRequest());
 
         if (apiResponse.succeeded && apiResponse.response) {
             return {

@@ -91,7 +91,7 @@ const Permission = () => {
                 claimValue: params.claimValue,
             };
             const api = await UpdateRoleClaims(data);
-            if (api.response && api.success) {
+            if (api.response) {
                 showMessage("Cập nhật thành công!");
                 getAllRoleClaims();
             }
@@ -102,7 +102,7 @@ const Permission = () => {
                 claimValue: params.claimValue,
             };
             const api = await CreateRoleClaims(data);
-            if (api.response && api.success) {
+            if (api.response) {
                 showMessage("Tạo thành công!");
                 getAllRoleClaims();
             }

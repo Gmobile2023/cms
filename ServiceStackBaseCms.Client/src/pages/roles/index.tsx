@@ -104,7 +104,7 @@ const Roles = () => {
                 concurrencyStamp: null,
             };
             const api = await UpdateRole(data);
-            if (api.response && api.success) {
+            if (api.response) {
                 showMessage("Cập nhật thành công!");
                 getAllRoles();
             }
@@ -116,7 +116,7 @@ const Roles = () => {
                 concurrencyStamp: null,
             };
             const api = await CreateRole(data);
-            if (api.response && api.success) {
+            if (api.response) {
                 showMessage("Tạo thành công!");
                 getAllRoles();
             }

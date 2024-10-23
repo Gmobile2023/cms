@@ -10,7 +10,7 @@ import { client } from "@/gateway";
 
 export const getRoles = async () => {
     try {
-        const apiResponse = await client.api(new RolesRequest());
+        const apiResponse = await client.api<any>(new RolesRequest());
 
         if (apiResponse.succeeded && apiResponse.response) {
             return {
@@ -34,7 +34,7 @@ export const getRoles = async () => {
 
 export const getRoleClaims = async () => {
     try {
-        const apiResponse = await client.api(new RoleClaimsRequest());
+        const apiResponse = await client.api<any>(new RoleClaimsRequest());
 
         if (apiResponse.succeeded && apiResponse.response) {
             return {

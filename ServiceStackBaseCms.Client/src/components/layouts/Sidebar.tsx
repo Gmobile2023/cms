@@ -66,7 +66,7 @@ const Sidebar = () => {
             label: "Phân quyền",
             submenu: [
                 { label: "Quản lý vai trò", path: "/roles-manager" },
-                { label: "Quản lý quyền", path: "/permission-manager" },
+                // { label: "Quản lý quyền", path: "/permission-manager" },
             ],
             permission: "",
             icon: <IconSettings />,

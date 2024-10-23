@@ -170,6 +170,33 @@ export class Page extends AuditBase {
     }
 }
 
+/** @description User Management */
+export class User extends AuditBase {
+    public firstName?: string;
+    public lastName?: string;
+    public displayName?: string;
+    public profileUrl?: string;
+    public userName?: string;
+    public normalizedUserName?: string;
+    public email?: string;
+    public normalizedEmail?: string;
+    public emailConfirmed: boolean;
+    public password?: string;
+    public securityStamp?: string;
+    public concurrencyStamp?: string;
+    public phoneNumber?: string;
+    public phoneNumberConfirmed: boolean;
+    public twoFactorEnabled: boolean;
+    public lockoutEnd?: string;
+    public lockoutEnabled: boolean;
+    public roles: string[];
+
+    public constructor(init?: Partial<User>) {
+        super(init);
+        (Object as any).assign(this, init);
+    }
+}
+
 export class Forecast implements IGet {
     public date: string;
     public temperatureC: number;

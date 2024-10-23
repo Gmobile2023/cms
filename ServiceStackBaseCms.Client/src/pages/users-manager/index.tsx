@@ -13,7 +13,7 @@ import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import moment from "moment";
 import Select from "react-select";
 import { client } from "@/gateway";
-import { QueryPages } from "@/dtos";
+import { User, UsersRequest } from "@/dtos";
 import sortBy from "lodash/sortBy";
 
 const PAGE_SIZES = [5, 10, 20];
@@ -72,8 +72,8 @@ const UsersManager = () => {
 
     const fetchUsers = async () => {
         try {
-            const api = await fetchAllUser();
-            if (api.success && api.response) {
+            const api = await client.api<any>(new UsersRequest());
+            if (api.succeeded && api.response) {
                 setUsers(api.response.results || []);
                 setTotalRecords(api.response.total || 0);
             }
@@ -91,8 +91,7 @@ const UsersManager = () => {
             if (api.success && api.response) {
                 setRoles(api.response.results || []);
             } else {
-                // setError(api.error);
-                console.log(response.error);
+                console.log(api.error);
             }
         } catch (err) {
             console.error(err);
