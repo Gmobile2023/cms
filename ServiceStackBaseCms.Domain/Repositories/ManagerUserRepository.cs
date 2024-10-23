@@ -316,7 +316,6 @@ public class ManagerUserRepository : IManagerUserRepository
             var role = request.ConvertTo<Roles>();
             role.NormalizedName = role.Name.ToUpper();
             await db.UpdateAsync(role);
-            var listRoleClaim = new List<RoleClaims>();
             await db.DeleteAsync<RoleClaims>(x => x.RoleId == role.Id);
             if (request.RoleClaims != null)
             {
@@ -328,7 +327,8 @@ public class ManagerUserRepository : IManagerUserRepository
                         ClaimType = roleClaim.ClaimType,
                         ClaimValue = roleClaim.ClaimValue
                     };
-                    listRoleClaim.Add(newRoleClaim);
+                    await db.InsertAsync(newRoleClaim);
+                    
                 }
             }
             
