@@ -6,7 +6,8 @@ import IconX from "@/components/Icon/IconX";
 import { SelectInput, TextInput } from "@/components/Form";
 import {
     CreateRole,
-    getRoleClaims,
+    getClaims,
+    getDetailRole,
     getRoles,
     UpdateRole,
 } from "@/services/rolesService";
@@ -18,7 +19,7 @@ const Roles = () => {
     const dispatch = useDispatch();
     const [modal, setModal] = useState(false);
     const [roles, setRoles] = useState([]);
-    const [roleClaims, setRoleClaims] = useState([]);
+    const [perms, setPerms] = useState([]);
     const PAGE_SIZES = [10, 20, 30, 50, 100];
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
@@ -30,7 +31,7 @@ const Roles = () => {
     useEffect(() => {
         dispatch(setPageTitle("Quản lý vai trò"));
         getAllRoles();
-        getAllRoleClaims();
+        getPermission();
     }, []);
 
     const [defaultParams] = useState({
@@ -38,15 +39,39 @@ const Roles = () => {
         name: "",
         normalizedName: "",
         concurrencyStamp: null,
+        roleClaims: [],
     });
 
     const [params, setParams] = useState<any>(
         JSON.parse(JSON.stringify(defaultParams))
     );
 
+    const [selectedRoleClaims, setSelectedRoleClaims] = useState<string[]>(
+        params.roleClaims || []
+    );
+
+    useEffect(() => {
+        if (params.roleClaims) {
+            let data = params.roleClaims;
+            const claimValues = data.map((item: any) => item.claimValue);
+            setSelectedRoleClaims(claimValues);
+        }
+    }, [params]);
+
     const changeValue = (e: any) => {
         const { value, id } = e.target;
         setParams({ ...params, [id]: value });
+    };
+
+    const handleRoleClaimsChange = (roleClaims: string) => {
+        setSelectedRoleClaims((prevSelectedRoles) => {
+            const isRoleClaimsSelected = prevSelectedRoles.includes(roleClaims);
+            const updatedRoleClaims = isRoleClaimsSelected
+                ? prevSelectedRoles.filter((r) => r !== roleClaims) // Xóa role
+                : [...prevSelectedRoles, roleClaims]; // Thêm role
+
+            return updatedRoleClaims;
+        });
     };
 
     const getAllRoles = async () => {
@@ -66,11 +91,28 @@ const Roles = () => {
             // setLoading(false);
         }
     };
-    const getAllRoleClaims = async () => {
+
+    const fetchDetailRole = async (data: any) => {
+        const idRole = data.id;
         try {
-            const response = await getRoleClaims();
+            const api = await getDetailRole(idRole);
+            if (api.response) {
+                setParams(api.response || {});
+                setModal(true);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
+    const getPermission = async () => {
+        try {
+            const response = await getClaims();
             if (response.success) {
-                setRoleClaims(response.response.results || []);
+                setPerms(response.response.results || []);
                 // console.log(response);
             } else {
                 // setError(api.error);
@@ -95,6 +137,10 @@ const Roles = () => {
     };
 
     const handleSubmit = async () => {
+        const dataPerm = selectedRoleClaims.map((perm) => ({
+            claimType: "perm",
+            claimValue: perm,
+        }));
         if (params.id) {
             // Update role
             let data = {
@@ -102,9 +148,10 @@ const Roles = () => {
                 name: params.name,
                 normalizedName: params.name,
                 concurrencyStamp: null,
+                roleClaims: dataPerm,
             };
             const api = await UpdateRole(data);
-            if (api.response && api.success) {
+            if (api.response) {
                 showMessage("Cập nhật thành công!");
                 getAllRoles();
             }
@@ -114,9 +161,10 @@ const Roles = () => {
                 name: params.name,
                 normalizedName: params.name,
                 concurrencyStamp: null,
+                roleClaims: dataPerm,
             };
             const api = await CreateRole(data);
-            if (api.response && api.success) {
+            if (api.response) {
                 showMessage("Tạo thành công!");
                 getAllRoles();
             }
@@ -185,7 +233,7 @@ const Roles = () => {
                                                 <Menu.Item
                                                     color="red"
                                                     onClick={() =>
-                                                        handleEditRole(record)
+                                                        fetchDetailRole(record)
                                                     }
                                                 >
                                                     Chỉnh sửa
@@ -253,7 +301,7 @@ const Roles = () => {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg text-black dark:text-white-dark">
+                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-xl text-black dark:text-white-dark">
                                         <button
                                             type="button"
                                             onClick={() => setModal(false)}
@@ -283,20 +331,46 @@ const Roles = () => {
                                                         }
                                                     />
                                                 </div>
-                                                {/* <div className="mb-5">
+                                                <div className="mb-5">
                                                     <label htmlFor="role">
-                                                        Role
+                                                        Chọn quyền
                                                     </label>
-                                                    <SelectInput
-                                                        id="role"
-                                                        className="form-select"
-                                                        options={options}
-                                                        value={selectedValue}
-                                                        onChange={
-                                                            handleSelectChange
-                                                        }
-                                                    ></SelectInput>
-                                                </div> */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                                        {perms.map(
+                                                            (
+                                                                perm: any,
+                                                                index
+                                                            ) => {
+                                                                return (
+                                                                    <label
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="inline-flex"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="form-checkbox text-info"
+                                                                            checked={selectedRoleClaims.includes(
+                                                                                perm.claimValue
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                handleRoleClaimsChange(
+                                                                                    perm.claimValue
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                perm.claimValue
+                                                                            }
+                                                                        </span>
+                                                                    </label>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </div>
+                                                </div>
                                                 <div className="flex justify-end items-center mt-8">
                                                     <Button
                                                         variant="filled"

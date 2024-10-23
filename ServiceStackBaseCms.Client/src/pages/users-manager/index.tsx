@@ -5,35 +5,45 @@ import { useDispatch } from "react-redux";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
-import { CreateUser, fetchAllUser, UpdateUser } from "@/services/usersService";
-import { getRoles } from "@/services/rolesService";
+import {
+    CreateUser,
+    fetchAllUser,
+    getUser,
+    UpdateUser,
+} from "@/services/usersService";
+import { getClaims, getRoles } from "@/services/rolesService";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import moment from "moment";
 import Select from "react-select";
 import { client } from "@/gateway";
-import { QueryPages } from "@/dtos";
+import { UsersRequest } from "@/dtos";
 import sortBy from "lodash/sortBy";
+
+const PAGE_SIZES = [10, 20, 30];
 
 const UsersManager = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    const PAGE_SIZES = [5, 10, 20, 30, 50, 100];
-    const [page, setPage] = useState(1);
+    const [perms, setPerms] = useState([]);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [pageSize]);
+
+    const [page, setPage] = useState(1);
+    const [records, setRecords] = useState(users.slice(0, pageSize));
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
         columnAccessor: "id",
         direction: "asc",
     });
-    const [recordsData, setRecordsData] = useState<any[]>([]);
     const [roles, setRoles] = useState<any[]>([]);
     const [selectedValue, setSelectedValue] = useState<string>("");
     const [totalRecords, setTotalRecords] = useState(0);
     const [addUserModal, setAddUserModal] = useState<any>(false);
-
-    const calculateSkip = () => (page - 1) * pageSize;
 
     const [defaultParams] = useState({
         id: null,
@@ -43,12 +53,17 @@ const UsersManager = () => {
         email: "",
         password: "",
         roleName: [],
+        userClaims: [],
     });
+
     const [params, setParams] = useState<any>(
         JSON.parse(JSON.stringify(defaultParams))
     );
     const [selectedRoles, setSelectedRoles] = useState<string[]>(
         params.roleName || []
+    );
+    const [selectedRoleClaims, setSelectedRoleClaims] = useState<string[]>(
+        params.roleClaims || []
     );
 
     useEffect(() => {
@@ -56,20 +71,38 @@ const UsersManager = () => {
     });
 
     useEffect(() => {
-        fetchUsers();
-    }, [page, pageSize]);
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize;
+        setRecords(users.slice(from, to));
+    }, [users, page, pageSize]);
 
-    useEffect(() => {
-        const data = sortBy(recordsData, sortStatus.columnAccessor);
-        setRecordsData(sortStatus.direction === "desc" ? data.reverse() : data);
-    }, [sortStatus]);
+    // useEffect(() => {
+    //     const data = sortBy(users, sortStatus.columnAccessor);
+    //     setRecordsData(sortStatus.direction === "desc" ? data.reverse() : data);
+    // }, [sortStatus]);
 
     const fetchUsers = async () => {
         try {
-            const api = await fetchAllUser();
-            if (api.success && api.response) {
-                setRecordsData(api.response.results || []);
+            const api = await client.api<any>(new UsersRequest());
+            if (api.succeeded && api.response) {
+                setUsers(api.response.results || []);
                 setTotalRecords(api.response.total || 0);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
+    const getDetailUser = async (data: any) => {
+        const idUser = data.id;
+        try {
+            const api = await getUser(idUser);
+            setAddUserModal(true);
+            if (api.response && api.success) {
+                setParams(api.response || {});
             }
         } catch (err) {
             console.error(err);
@@ -85,8 +118,25 @@ const UsersManager = () => {
             if (api.success && api.response) {
                 setRoles(api.response.results || []);
             } else {
+                console.log(api.error);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
+    const getPermission = async () => {
+        try {
+            const response = await getClaims();
+            if (response.success) {
+                setPerms(response.response.results || []);
+                // console.log(response);
+            } else {
                 // setError(api.error);
-                console.log(response.error);
+                console.log(response);
             }
         } catch (err) {
             console.error(err);
@@ -103,11 +153,20 @@ const UsersManager = () => {
     useEffect(() => {
         fetchUsers();
         getAllRoles();
+        getPermission();
     }, []);
 
     useEffect(() => {
         if (params.roleName) {
             setSelectedRoles(params.roleName);
+        }
+    }, [params]);
+
+    useEffect(() => {
+        if (params.roleClaims) {
+            let data = params.roleClaims;
+            const claimValues = data.map((item: any) => item.claimValue);
+            setSelectedRoleClaims(claimValues);
         }
     }, [params]);
 
@@ -122,6 +181,17 @@ const UsersManager = () => {
         });
     };
 
+    const handleRoleClaimsChange = (roleClaims: string) => {
+        setSelectedRoleClaims((prevSelectedRoles) => {
+            const isRoleClaimsSelected = prevSelectedRoles.includes(roleClaims);
+            const updatedRoleClaims = isRoleClaimsSelected
+                ? prevSelectedRoles.filter((r) => r !== roleClaims) // Xóa role
+                : [...prevSelectedRoles, roleClaims]; // Thêm role
+
+            return updatedRoleClaims;
+        });
+    };
+
     const changeValue = (e: any) => {
         const { value, id } = e.target;
         setParams({ ...params, [id]: value });
@@ -129,20 +199,25 @@ const UsersManager = () => {
 
     const [search, setSearch] = useState<any>("");
 
-    const [filteredItems, setFilteredItems] = useState<any>(users);
+    const [filteredItems, setFilteredItems] = useState<any>(records);
 
     useEffect(() => {
         setFilteredItems(() => {
-            return users.filter((item: any) => {
+            return records.filter((item: any) => {
                 // console.log(item);
                 return item.userName
                     .toLowerCase()
                     .includes(search.toLowerCase());
             });
         });
-    }, [search, users]);
+    }, [search, records]);
 
     const saveUser = async () => {
+        const dataPerm = selectedRoleClaims.map((perm) => ({
+            claimType: "perm",
+            claimValue: perm,
+        }));
+
         if (!params.userName) {
             showMessage("Name is required.", "error");
             return true;
@@ -155,29 +230,32 @@ const UsersManager = () => {
 
         if (params.id) {
             // Update user
-            let user = {
+            let userData = {
                 id: params.id,
                 firstName: params.firstName,
                 lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 roles: selectedRoles,
+                userClaims: dataPerm,
             };
-            const response = await UpdateUser(user);
+            const response = await UpdateUser(userData);
             if (response.success) {
                 showMessage("Cập nhật người dùng thành công!");
                 fetchUsers();
             }
         } else {
-            let user = {
+            let userData = {
                 firstName: params.firstName,
                 lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 password: params.password,
                 roles: selectedRoles,
+                // userId: params.id,
+                userClaims: dataPerm,
             };
-            const response = await CreateUser(user);
+            const response = await CreateUser(userData);
             if (response.success) {
                 showMessage("Người dùng đã được thêm thành công!.");
                 fetchUsers();
@@ -244,7 +322,7 @@ const UsersManager = () => {
                         />
                         <DataTable
                             className="whitespace-nowrap table-hover"
-                            records={recordsData}
+                            records={records}
                             columns={[
                                 {
                                     accessor: "action",
@@ -266,7 +344,7 @@ const UsersManager = () => {
                                                 </Menu.Item>
                                                 <Menu.Item
                                                     onClick={() =>
-                                                        editUser(record)
+                                                        getDetailUser(record)
                                                     }
                                                 >
                                                     Chỉnh sửa
@@ -301,8 +379,8 @@ const UsersManager = () => {
                             onPageChange={(p) => setPage(p)}
                             recordsPerPageOptions={PAGE_SIZES}
                             onRecordsPerPageChange={setPageSize}
-                            sortStatus={sortStatus}
-                            onSortStatusChange={setSortStatus}
+                            // sortStatus={sortStatus}
+                            // onSortStatusChange={setSortStatus}
                             minHeight={200}
                             paginationText={({ from, to, totalRecords }) =>
                                 `Hiển thị ${from} - ${to} / ${totalRecords} kết quả`
@@ -437,7 +515,7 @@ const UsersManager = () => {
                                                 )}
                                                 <div className="mb-5">
                                                     <label htmlFor="role">
-                                                        Role
+                                                        Chọn vai trò
                                                     </label>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                                                         {roles.map(
@@ -467,6 +545,46 @@ const UsersManager = () => {
                                                                         <span>
                                                                             {
                                                                                 role.name
+                                                                            }
+                                                                        </span>
+                                                                    </label>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="mb-5">
+                                                    <label htmlFor="role">
+                                                        Chọn quyền
+                                                    </label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                                        {perms.map(
+                                                            (
+                                                                perm: any,
+                                                                index
+                                                            ) => {
+                                                                return (
+                                                                    <label
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="inline-flex"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="form-checkbox text-info"
+                                                                            checked={selectedRoleClaims.includes(
+                                                                                perm.claimValue
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                handleRoleClaimsChange(
+                                                                                    perm.claimValue
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                perm.claimValue
                                                                             }
                                                                         </span>
                                                                     </label>

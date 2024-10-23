@@ -4,12 +4,12 @@ import { useDispatch } from "react-redux";
 import { Dialog, Transition } from "@headlessui/react";
 import IconX from "@/components/Icon/IconX";
 import { SelectInput, TextInput } from "@/components/Form";
-import {
-    CreateRoleClaims,
-    getRoleClaims,
-    getRoles,
-    UpdateRoleClaims,
-} from "@/services/rolesService";
+// import {
+//     CreateRoleClaims,
+//     getRoleClaims,
+//     getRoles,
+//     UpdateRoleClaims,
+// } from "@/services/rolesService";
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import Swal from "sweetalert2";
@@ -28,7 +28,7 @@ const Permission = () => {
 
     useEffect(() => {
         dispatch(setPageTitle("Quản lý quyền"));
-        getAllRoleClaims();
+        // getAllRoleClaims();
     }, []);
 
     const [defaultParams] = useState({
@@ -41,23 +41,23 @@ const Permission = () => {
         JSON.parse(JSON.stringify(defaultParams))
     );
 
-    const getAllRoleClaims = async () => {
-        try {
-            const response = await getRoleClaims();
-            if (response.success) {
-                setRoleClaims(response.response.results || []);
-                // console.log(response);
-            } else {
-                // setError(api.error);
-                console.log(response);
-            }
-        } catch (err) {
-            console.error(err);
-            // setError(err);
-        } finally {
-            // setLoading(false);
-        }
-    };
+    // const getAllRoleClaims = async () => {
+    //     try {
+    //         const response = await getRoleClaims();
+    //         if (response.success) {
+    //             setRoleClaims(response.response.results || []);
+    //             // console.log(response);
+    //         } else {
+    //             // setError(api.error);
+    //             console.log(response);
+    //         }
+    //     } catch (err) {
+    //         console.error(err);
+    //         // setError(err);
+    //     } finally {
+    //         // setLoading(false);
+    //     }
+    // };
 
     const handleDelete = (record: any) => {
         console.log("Delete record:", record);
@@ -82,34 +82,34 @@ const Permission = () => {
         openModal();
     };
 
-    const handleSubmit = async () => {
-        if (params.id) {
-            // Update role
-            let data = {
-                id: params.id,
-                roleId: params.roleId,
-                claimValue: params.claimValue,
-            };
-            const api = await UpdateRoleClaims(data);
-            if (api.response && api.success) {
-                showMessage("Cập nhật thành công!");
-                getAllRoleClaims();
-            }
-        } else {
-            // Create role
-            let data = {
-                roleId: params.roleId,
-                claimValue: params.claimValue,
-            };
-            const api = await CreateRoleClaims(data);
-            if (api.response && api.success) {
-                showMessage("Tạo thành công!");
-                getAllRoleClaims();
-            }
-        }
-        setParams(defaultParams);
-        setModal(false);
-    };
+    // const handleSubmit = async () => {
+    //     if (params.id) {
+    //         // Update role
+    //         let data = {
+    //             id: params.id,
+    //             roleId: params.roleId,
+    //             claimValue: params.claimValue,
+    //         };
+    //         const api = await UpdateRoleClaims(data);
+    //         if (api.response) {
+    //             showMessage("Cập nhật thành công!");
+    //             getAllRoleClaims();
+    //         }
+    //     } else {
+    //         // Create role
+    //         let data = {
+    //             roleId: params.roleId,
+    //             claimValue: params.claimValue,
+    //         };
+    //         const api = await CreateRoleClaims(data);
+    //         if (api.response) {
+    //             showMessage("Tạo thành công!");
+    //             getAllRoleClaims();
+    //         }
+    //     }
+    //     setParams(defaultParams);
+    //     setModal(false);
+    // };
 
     const showMessage = (msg = "", type = "success") => {
         const toast: any = Swal.mixin({
@@ -279,7 +279,7 @@ const Permission = () => {
                                                     <Button
                                                         variant="filled"
                                                         color="blue"
-                                                        onClick={handleSubmit}
+                                                        // onClick={handleSubmit}
                                                     >
                                                         {params.id
                                                             ? "Cập nhật"
