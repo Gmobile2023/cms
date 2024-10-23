@@ -21,7 +21,7 @@ import { client } from "@/gateway";
 import { UsersRequest } from "@/dtos";
 import sortBy from "lodash/sortBy";
 
-const PAGE_SIZES = [5, 10, 20];
+const PAGE_SIZES = [10, 20, 30];
 
 const UsersManager = () => {
     const dispatch = useDispatch();
