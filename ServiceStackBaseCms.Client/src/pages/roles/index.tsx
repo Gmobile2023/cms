@@ -118,7 +118,7 @@ const Roles = () => {
                 name: params.name,
                 normalizedName: params.name,
                 concurrencyStamp: null,
-                roleClaims: [],
+                roleClaims: dataAdd,
             };
             const api = await UpdateRole(data);
             if (api.response) {
@@ -131,7 +131,7 @@ const Roles = () => {
                 name: params.name,
                 normalizedName: params.name,
                 concurrencyStamp: null,
-                roleClaims: [],
+                roleClaims: dataAdd,
             };
             const api = await CreateRole(data);
             if (api.response) {

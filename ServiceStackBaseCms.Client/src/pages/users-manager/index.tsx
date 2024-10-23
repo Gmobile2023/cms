@@ -27,16 +27,7 @@ const UsersManager = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    const [user, setUser] = useState({
-        id: null,
-        firstName: "",
-        lastName: "",
-        userName: "",
-        email: "",
-        password: "",
-        roleName: [],
-        userClaims: [],
-    });
+    // const [user, setUser] = useState(defaultParams);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
 
     useEffect(() => {
@@ -62,12 +53,14 @@ const UsersManager = () => {
         email: "",
         password: "",
         roleName: [],
+        userClaims: [],
     });
+
     const [params, setParams] = useState<any>(
         JSON.parse(JSON.stringify(defaultParams))
     );
     const [selectedRoles, setSelectedRoles] = useState<string[]>(
-        user.roleName || []
+        params.roleName || []
     );
 
     useEffect(() => {
@@ -106,7 +99,7 @@ const UsersManager = () => {
             const api = await getUser(idUser);
             setAddUserModal(true);
             if (api.response && api.success) {
-                setUser(api.response || {});
+                setParams(api.response || {});
             }
         } catch (err) {
             console.error(err);
@@ -142,10 +135,10 @@ const UsersManager = () => {
     }, []);
 
     useEffect(() => {
-        if (user.roleName) {
-            setSelectedRoles(user.roleName);
+        if (params.roleName) {
+            setSelectedRoles(params.roleName);
         }
-    }, [user]);
+    }, [params]);
 
     const handleRoleChange = (role: string) => {
         setSelectedRoles((prevSelectedRoles) => {
@@ -165,18 +158,18 @@ const UsersManager = () => {
 
     const [search, setSearch] = useState<any>("");
 
-    const [filteredItems, setFilteredItems] = useState<any>(users);
+    const [filteredItems, setFilteredItems] = useState<any>(records);
 
     useEffect(() => {
         setFilteredItems(() => {
-            return users.filter((item: any) => {
+            return records.filter((item: any) => {
                 // console.log(item);
                 return item.userName
                     .toLowerCase()
                     .includes(search.toLowerCase());
             });
         });
-    }, [search, users]);
+    }, [search, records]);
 
     const saveUser = async () => {
         if (!params.userName) {
@@ -191,29 +184,43 @@ const UsersManager = () => {
 
         if (params.id) {
             // Update user
-            let user = {
+            let userData = {
                 id: params.id,
                 firstName: params.firstName,
                 lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 roles: selectedRoles,
+                userClaims: [
+                    {
+                        userId: params.id,
+                        claimType: "perm",
+                        claimValue: "view_list_user",
+                    },
+                ],
             };
-            const response = await UpdateUser(user);
+            const response = await UpdateUser(userData);
             if (response.success) {
                 showMessage("Cập nhật người dùng thành công!");
                 fetchUsers();
             }
         } else {
-            let user = {
+            let userData = {
                 firstName: params.firstName,
                 lastName: params.lastName,
                 userName: params.userName,
                 email: params.email,
                 password: params.password,
                 roles: selectedRoles,
+                userId: params.id,
+                userClaims: [
+                    {
+                        claimType: "perm",
+                        claimValue: "view_list_user",
+                    },
+                ],
             };
-            const response = await CreateUser(user);
+            const response = await CreateUser(userData);
             if (response.success) {
                 showMessage("Người dùng đã được thêm thành công!.");
                 fetchUsers();
@@ -386,7 +393,7 @@ const UsersManager = () => {
                                             <IconX />
                                         </button>
                                         <div className="text-lg font-medium bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">
-                                            {!user.id
+                                            {!params.id
                                                 ? "Thêm người dùng"
                                                 : "Sửa người dùng"}
                                         </div>
@@ -401,7 +408,7 @@ const UsersManager = () => {
                                                         type="text"
                                                         placeholder="Nhập họ"
                                                         className="form-input"
-                                                        value={user.lastName}
+                                                        value={params.lastName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -416,7 +423,7 @@ const UsersManager = () => {
                                                         type="text"
                                                         placeholder="Nhập tên"
                                                         className="form-input"
-                                                        value={user.firstName}
+                                                        value={params.firstName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -431,7 +438,7 @@ const UsersManager = () => {
                                                         type="text"
                                                         placeholder="Nhập tên người dùng"
                                                         className="form-input"
-                                                        value={user.userName}
+                                                        value={params.userName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -446,13 +453,13 @@ const UsersManager = () => {
                                                         type="email"
                                                         placeholder="Nhập email"
                                                         className="form-input"
-                                                        value={user.email}
+                                                        value={params.email}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
                                                     />
                                                 </div>
-                                                {!user.id && (
+                                                {!params.id && (
                                                     <div className="mb-5">
                                                         <label htmlFor="password">
                                                             Mật khẩu
@@ -463,7 +470,7 @@ const UsersManager = () => {
                                                             placeholder="Nhập mật khẩu"
                                                             className="form-input"
                                                             value={
-                                                                user.password
+                                                                params.password
                                                             }
                                                             onChange={(e) =>
                                                                 changeValue(e)
