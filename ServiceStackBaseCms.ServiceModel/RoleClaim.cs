@@ -7,6 +7,7 @@ namespace ServiceStackBaseCms.ServiceModel;
 [Route("/RoleClaim", "POST")]
 public class CreateRoleClaim
 {   
+    
     public  string RoleId { get; set; }
 
     
