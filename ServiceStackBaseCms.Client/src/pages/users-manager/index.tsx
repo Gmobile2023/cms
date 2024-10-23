@@ -16,24 +16,28 @@ import { client } from "@/gateway";
 import { QueryPages } from "@/dtos";
 import sortBy from "lodash/sortBy";
 
+const PAGE_SIZES = [5, 10, 20];
+
 const UsersManager = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    const PAGE_SIZES = [5, 10, 20, 30, 50, 100];
-    const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [pageSize]);
+
+    const [page, setPage] = useState(1);
+    const [records, setRecords] = useState(users.slice(0, pageSize));
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
         columnAccessor: "id",
         direction: "asc",
     });
-    const [recordsData, setRecordsData] = useState<any[]>([]);
     const [roles, setRoles] = useState<any[]>([]);
     const [selectedValue, setSelectedValue] = useState<string>("");
     const [totalRecords, setTotalRecords] = useState(0);
     const [addUserModal, setAddUserModal] = useState<any>(false);
-
-    const calculateSkip = () => (page - 1) * pageSize;
 
     const [defaultParams] = useState({
         id: null,
@@ -56,19 +60,21 @@ const UsersManager = () => {
     });
 
     useEffect(() => {
-        fetchUsers();
-    }, [page, pageSize]);
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize;
+        setRecords(users.slice(from, to));
+    }, [users, page, pageSize]);
 
-    useEffect(() => {
-        const data = sortBy(recordsData, sortStatus.columnAccessor);
-        setRecordsData(sortStatus.direction === "desc" ? data.reverse() : data);
-    }, [sortStatus]);
+    // useEffect(() => {
+    //     const data = sortBy(users, sortStatus.columnAccessor);
+    //     setRecordsData(sortStatus.direction === "desc" ? data.reverse() : data);
+    // }, [sortStatus]);
 
     const fetchUsers = async () => {
         try {
             const api = await fetchAllUser();
             if (api.success && api.response) {
-                setRecordsData(api.response.results || []);
+                setUsers(api.response.results || []);
                 setTotalRecords(api.response.total || 0);
             }
         } catch (err) {
@@ -244,7 +250,7 @@ const UsersManager = () => {
                         />
                         <DataTable
                             className="whitespace-nowrap table-hover"
-                            records={recordsData}
+                            records={records}
                             columns={[
                                 {
                                     accessor: "action",
@@ -301,8 +307,8 @@ const UsersManager = () => {
                             onPageChange={(p) => setPage(p)}
                             recordsPerPageOptions={PAGE_SIZES}
                             onRecordsPerPageChange={setPageSize}
-                            sortStatus={sortStatus}
-                            onSortStatusChange={setSortStatus}
+                            // sortStatus={sortStatus}
+                            // onSortStatusChange={setSortStatus}
                             minHeight={200}
                             paginationText={({ from, to, totalRecords }) =>
                                 `Hiển thị ${from} - ${to} / ${totalRecords} kết quả`
