@@ -1,7 +1,7 @@
 import {
     CreateUserRequest,
     UpdateUserRequest,
-    User,
+    UserRequest,
     UsersRequest,
 } from "@/dtos";
 import { client } from "@/gateway";
@@ -23,6 +23,30 @@ export const fetchAllUser = async () => {
         }
     } catch (err) {
         console.error("Error get users:", err);
+        return {
+            success: false,
+            error: (err as Error).message || "An unknown error occurred",
+        };
+    }
+};
+
+export const getUser = async (id: any) => {
+    try {
+        const apiResponse = await client.api<any>(new UserRequest({ id }));
+
+        if (apiResponse.succeeded && apiResponse.response) {
+            return {
+                success: true,
+                response: apiResponse?.response,
+            };
+        } else {
+            return {
+                success: false,
+                error: apiResponse.error || "Failed to get user",
+            };
+        }
+    } catch (err) {
+        console.error("Error get user:", err);
         return {
             success: false,
             error: (err as Error).message || "An unknown error occurred",

@@ -38,6 +38,7 @@ const Roles = () => {
         name: "",
         normalizedName: "",
         concurrencyStamp: null,
+        roleClaims: [],
     });
 
     const [params, setParams] = useState<any>(
@@ -94,6 +95,21 @@ const Roles = () => {
         openModal();
     };
 
+    const dataAdd = [
+        {
+            claim_type: "permission",
+            claim_value: "view_list_user",
+        },
+        {
+            claim_type: "permission",
+            claim_value: "edit_list_user",
+        },
+        {
+            claim_type: "permission",
+            claim_value: "delete_list_user",
+        },
+    ];
+
     const handleSubmit = async () => {
         if (params.id) {
             // Update role
@@ -102,6 +118,7 @@ const Roles = () => {
                 name: params.name,
                 normalizedName: params.name,
                 concurrencyStamp: null,
+                roleClaims: [],
             };
             const api = await UpdateRole(data);
             if (api.response) {
@@ -114,6 +131,7 @@ const Roles = () => {
                 name: params.name,
                 normalizedName: params.name,
                 concurrencyStamp: null,
+                roleClaims: [],
             };
             const api = await CreateRole(data);
             if (api.response) {

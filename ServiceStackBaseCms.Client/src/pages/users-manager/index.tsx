@@ -5,7 +5,12 @@ import { useDispatch } from "react-redux";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
-import { CreateUser, fetchAllUser, UpdateUser } from "@/services/usersService";
+import {
+    CreateUser,
+    fetchAllUser,
+    getUser,
+    UpdateUser,
+} from "@/services/usersService";
 import { getRoles } from "@/services/rolesService";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Menu } from "@mantine/core";
@@ -13,7 +18,7 @@ import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import moment from "moment";
 import Select from "react-select";
 import { client } from "@/gateway";
-import { User, UsersRequest } from "@/dtos";
+import { UsersRequest } from "@/dtos";
 import sortBy from "lodash/sortBy";
 
 const PAGE_SIZES = [5, 10, 20];
@@ -22,6 +27,16 @@ const UsersManager = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
+    const [user, setUser] = useState({
+        id: null,
+        firstName: "",
+        lastName: "",
+        userName: "",
+        email: "",
+        password: "",
+        roleName: [],
+        userClaims: [],
+    });
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
 
     useEffect(() => {
@@ -52,7 +67,7 @@ const UsersManager = () => {
         JSON.parse(JSON.stringify(defaultParams))
     );
     const [selectedRoles, setSelectedRoles] = useState<string[]>(
-        params.roleName || []
+        user.roleName || []
     );
 
     useEffect(() => {
@@ -76,6 +91,22 @@ const UsersManager = () => {
             if (api.succeeded && api.response) {
                 setUsers(api.response.results || []);
                 setTotalRecords(api.response.total || 0);
+            }
+        } catch (err) {
+            console.error(err);
+            // setError(err);
+        } finally {
+            // setLoading(false);
+        }
+    };
+
+    const getDetailUser = async (data: any) => {
+        const idUser = data.id;
+        try {
+            const api = await getUser(idUser);
+            setAddUserModal(true);
+            if (api.response && api.success) {
+                setUser(api.response || {});
             }
         } catch (err) {
             console.error(err);
@@ -111,10 +142,10 @@ const UsersManager = () => {
     }, []);
 
     useEffect(() => {
-        if (params.roleName) {
-            setSelectedRoles(params.roleName);
+        if (user.roleName) {
+            setSelectedRoles(user.roleName);
         }
-    }, [params]);
+    }, [user]);
 
     const handleRoleChange = (role: string) => {
         setSelectedRoles((prevSelectedRoles) => {
@@ -271,7 +302,7 @@ const UsersManager = () => {
                                                 </Menu.Item>
                                                 <Menu.Item
                                                     onClick={() =>
-                                                        editUser(record)
+                                                        getDetailUser(record)
                                                     }
                                                 >
                                                     Chỉnh sửa
@@ -355,7 +386,7 @@ const UsersManager = () => {
                                             <IconX />
                                         </button>
                                         <div className="text-lg font-medium bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">
-                                            {!params.id
+                                            {!user.id
                                                 ? "Thêm người dùng"
                                                 : "Sửa người dùng"}
                                         </div>
@@ -370,7 +401,7 @@ const UsersManager = () => {
                                                         type="text"
                                                         placeholder="Nhập họ"
                                                         className="form-input"
-                                                        value={params.lastName}
+                                                        value={user.lastName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -385,7 +416,7 @@ const UsersManager = () => {
                                                         type="text"
                                                         placeholder="Nhập tên"
                                                         className="form-input"
-                                                        value={params.firstName}
+                                                        value={user.firstName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -400,7 +431,7 @@ const UsersManager = () => {
                                                         type="text"
                                                         placeholder="Nhập tên người dùng"
                                                         className="form-input"
-                                                        value={params.userName}
+                                                        value={user.userName}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -415,13 +446,13 @@ const UsersManager = () => {
                                                         type="email"
                                                         placeholder="Nhập email"
                                                         className="form-input"
-                                                        value={params.email}
+                                                        value={user.email}
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
                                                     />
                                                 </div>
-                                                {!params.id && (
+                                                {!user.id && (
                                                     <div className="mb-5">
                                                         <label htmlFor="password">
                                                             Mật khẩu
@@ -432,7 +463,7 @@ const UsersManager = () => {
                                                             placeholder="Nhập mật khẩu"
                                                             className="form-input"
                                                             value={
-                                                                params.password
+                                                                user.password
                                                             }
                                                             onChange={(e) =>
                                                                 changeValue(e)

@@ -192,43 +192,43 @@ export class Page extends AuditBase {
     }
 }
 
-export class UserDto {
-    public id: string;
-    public firstName?: string;
-    public lastName?: string;
-    public displayName?: string;
-    public profileUrl?: string;
-    public userName?: string;
-    public normalizedUserName?: string;
-    public email?: string;
-    public normalizedEmail?: string;
-    public emailConfirmed: boolean;
-    public password?: string;
-    public securityStamp?: string;
-    public concurrencyStamp?: string;
-    public phoneNumber?: string;
-    public phoneNumberConfirmed: boolean;
-    public twoFactorEnabled: boolean;
-    public lockoutEnd?: string;
-    public lockoutEnabled: boolean;
-    public roles: string[];
+// export class UserDto {
+//     public id: string;
+//     public firstName?: string;
+//     public lastName?: string;
+//     public displayName?: string;
+//     public profileUrl?: string;
+//     public userName?: string;
+//     public normalizedUserName?: string;
+//     public email?: string;
+//     public normalizedEmail?: string;
+//     public emailConfirmed: boolean;
+//     public password?: string;
+//     public securityStamp?: string;
+//     public concurrencyStamp?: string;
+//     public phoneNumber?: string;
+//     public phoneNumberConfirmed: boolean;
+//     public twoFactorEnabled: boolean;
+//     public lockoutEnd?: string;
+//     public lockoutEnabled: boolean;
+//     public roles: string[];
 
-    public constructor(init?: Partial<User>) {
-        super(init);
-        (Object as any).assign(this, init);
-    }
-}
+//     public constructor(init?: Partial<User>) {
+//         super(init);
+//         (Object as any).assign(this, init);
+//     }
+// }
 
-export class Forecast implements IGet {
-    public date: string;
-    public temperatureC: number;
-    public summary?: string;
-    public temperatureF: number;
+// export class Forecast implements IGet {
+//     public date: string;
+//     public temperatureC: number;
+//     public summary?: string;
+//     public temperatureF: number;
 
-    public constructor(init?: Partial<UserDto>) {
-        (Object as any).assign(this, init);
-    }
-}
+//     public constructor(init?: Partial<UserDto>) {
+//         (Object as any).assign(this, init);
+//     }
+// }
 
 // @DataContract
 export class ResponseError {
