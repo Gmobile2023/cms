@@ -22,6 +22,7 @@ services.AddCors(options =>
                 .AllowAnyHeader();
         });
 });
+
 services.AddAuthorization();
 services.AddIdentity<ApplicationUser, IdentityRole>(options => {
         //options.User.AllowedUserNameCharacters = null;

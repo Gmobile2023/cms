@@ -4,9 +4,15 @@ import { useDispatch } from "react-redux";
 import { Dialog, Transition } from "@headlessui/react";
 import IconX from "@/components/Icon/IconX";
 import { SelectInput, TextInput } from "@/components/Form";
-import { getRoleClaims, getRoles } from "@/services/rolesService";
+import {
+    CreateRoleClaims,
+    getRoleClaims,
+    getRoles,
+    UpdateRoleClaims,
+} from "@/services/rolesService";
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
+import Swal from "sweetalert2";
 
 const Permission = () => {
     const dispatch = useDispatch();
@@ -27,8 +33,8 @@ const Permission = () => {
 
     const [defaultParams] = useState({
         id: null,
-        name: "",
-        normalizedName: "",
+        roleId: "",
+        claimValue: "",
     });
 
     const [params, setParams] = useState<any>(
@@ -39,7 +45,7 @@ const Permission = () => {
         try {
             const response = await getRoleClaims();
             if (response.success) {
-                setRoleClaims(response.response.items || []);
+                setRoleClaims(response.response.results || []);
                 // console.log(response);
             } else {
                 // setError(api.error);
@@ -53,8 +59,6 @@ const Permission = () => {
         }
     };
 
-    const handleSubmit = () => {};
-
     const handleDelete = (record: any) => {
         console.log("Delete record:", record);
     };
@@ -66,6 +70,60 @@ const Permission = () => {
     const changeValue = (e: any) => {
         const { value, id } = e.target;
         setParams({ ...params, [id]: value });
+    };
+
+    const handleEditPermission = (data: any = null) => {
+        const json = JSON.parse(JSON.stringify(defaultParams));
+        setParams(json);
+        if (data) {
+            let json1 = JSON.parse(JSON.stringify(data));
+            setParams(json1);
+        }
+        openModal();
+    };
+
+    const handleSubmit = async () => {
+        if (params.id) {
+            // Update role
+            let data = {
+                id: params.id,
+                roleId: params.roleId,
+                claimValue: params.claimValue,
+            };
+            const api = await UpdateRoleClaims(data);
+            if (api.response && api.success) {
+                showMessage("Cập nhật thành công!");
+                getAllRoleClaims();
+            }
+        } else {
+            // Create role
+            let data = {
+                roleId: params.roleId,
+                claimValue: params.claimValue,
+            };
+            const api = await CreateRoleClaims(data);
+            if (api.response && api.success) {
+                showMessage("Tạo thành công!");
+                getAllRoleClaims();
+            }
+        }
+        setParams(defaultParams);
+        setModal(false);
+    };
+
+    const showMessage = (msg = "", type = "success") => {
+        const toast: any = Swal.mixin({
+            toast: true,
+            position: "top",
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: { container: "toast" },
+        });
+        toast.fire({
+            icon: type,
+            title: msg,
+            padding: "10px 20px",
+        });
     };
 
     return (
@@ -87,13 +145,6 @@ const Permission = () => {
                         </div>
                     </div>
                     <div className="datatables">
-                        {/* <input
-                            type="text"
-                            className="form-input w-auto mb-4"
-                            placeholder="Tìm kiếm..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        /> */}
                         <DataTable
                             className="whitespace-nowrap table-hover"
                             records={roleClaims}
@@ -109,6 +160,16 @@ const Permission = () => {
                                                 </Button>
                                             </Menu.Target>
                                             <Menu.Dropdown>
+                                                <Menu.Item
+                                                    color="red"
+                                                    onClick={() =>
+                                                        handleEditPermission(
+                                                            record
+                                                        )
+                                                    }
+                                                >
+                                                    Chỉnh sửa
+                                                </Menu.Item>
                                                 <Menu.Item
                                                     color="red"
                                                     onClick={() =>
@@ -188,15 +249,17 @@ const Permission = () => {
                                         <div className="p-5">
                                             <form>
                                                 <div className="mb-5">
-                                                    <label htmlFor="lastName">
+                                                    <label htmlFor="claimValue">
                                                         Tên quyền
                                                     </label>
                                                     <input
-                                                        id="lastName"
+                                                        id="claimValue"
                                                         type="text"
                                                         placeholder="Nhập họ"
                                                         className="form-input"
-                                                        value={params.lastName}
+                                                        value={
+                                                            params.claimValue
+                                                        }
                                                         onChange={(e) =>
                                                             changeValue(e)
                                                         }
@@ -216,7 +279,7 @@ const Permission = () => {
                                                     <Button
                                                         variant="filled"
                                                         color="blue"
-                                                        // onClick={saveUser}
+                                                        onClick={handleSubmit}
                                                     >
                                                         {params.id
                                                             ? "Cập nhật"

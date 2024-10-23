@@ -118,4 +118,9 @@ public class MainService : Service
     {
         return await _managerUserRepository.CreateRoleClaim(request);
     }
+    
+    public async Task<object> GetAsync(PermissionsRequest request)
+    {
+        return await _managerUserRepository.GetPermissions(request);
+    }
 }

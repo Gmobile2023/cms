@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
@@ -28,16 +29,25 @@ public class ManagerUserRepository : IManagerUserRepository
             var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
             {
-                var role = await _userManager.AddToRolesAsync(user, request.Roles);
-                if (role.Succeeded)
+                if (request.Roles != null)
                 {
-                    trans.Commit();
-                    return true;
+                    var role = await _userManager.AddToRolesAsync(user, request.Roles);
+                    
                 }
-                else
+                var listUserClaim = new List<UserClaims>();
+                foreach (var userClaim in request.UserClaims)
                 {
-                    return false;
+                    var userClaims = new UserClaims()
+                    {
+                        UserId = user.Id,
+                        ClaimValue = userClaim.ClaimValue,
+                        ClaimType = userClaim.ClaimValue,
+                    };
+                    listUserClaim.Add(userClaims);
                 }
+                await db.InsertAllAsync(listUserClaim);
+                trans.Commit();
+                return true;
             }
             else
             {
@@ -70,10 +80,8 @@ public class ManagerUserRepository : IManagerUserRepository
         user.PhoneNumber = request.PhoneNumber;
         user.NormalizedEmail = request.Email.ToUpper();
         user.NormalizedUserName = request.UserName.ToUpper();
-        
         var result = await db.UpdateAsync(user);
         if (result == 0) return false;
-        
         var currentRoles = await _userManager.GetRolesAsync(user);
         var rolesToUpdate = request.Roles ?? new List<string>();
         
@@ -98,7 +106,21 @@ public class ManagerUserRepository : IManagerUserRepository
         {
             await db.InsertAllAsync(userRoles);
         }
-
+        var listUserClaim = new List<UserClaims>();
+        await db.DeleteAsync<UserClaims>(x => x.UserId == user.Id);
+        if (request.UserClaims != null)
+        {
+            foreach (var userClaim in request.UserClaims)
+            {
+                var userClaims = new UserClaims()
+                {
+                    UserId = user.Id,
+                    ClaimValue = userClaim.ClaimValue,
+                    ClaimType = userClaim.ClaimValue,
+                };
+                listUserClaim.Add(userClaims);
+            }
+        }
         trans.Commit(); 
         return true;
     }
@@ -207,7 +229,7 @@ public class ManagerUserRepository : IManagerUserRepository
         try
         {
             var userClaim = request.ConvertTo<RoleClaims>();
-            await db.InsertAsync(userClaim);
+            await db.InsertAsync(userClaim,true);
             return true;
         }
         catch (Exception e)
@@ -258,6 +280,28 @@ public class ManagerUserRepository : IManagerUserRepository
         catch (Exception e)
         {
             return false;
+        }
+    }
+
+    public async Task<QueryResponse<Permission>> GetPermissions(PermissionsRequest request)
+    {
+        using var db = _connectionFactory.OpenDbConnection();
+        try
+        {
+            var role = request.ConvertTo<Roles>();
+            var query = db.From<Permission>();
+            var total = (int)db.Count(query);
+            var permission = await db.SelectAsync<Permission>(query);
+            return new QueryResponse<Permission>()
+            {
+                Total = total,
+                Results = permission
+            };
+
+        }
+        catch (Exception e)
+        {
+            return new QueryResponse<Permission>();
         }
     }
 

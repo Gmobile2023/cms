@@ -8,7 +8,7 @@ export const fetchAllUser = async () => {
         if (apiResponse.succeeded && apiResponse.response) {
             return {
                 success: true,
-                response: apiResponse.response,
+                response: apiResponse?.response,
             };
         } else {
             return {
