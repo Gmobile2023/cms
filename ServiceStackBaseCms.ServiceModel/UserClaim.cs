@@ -5,16 +5,23 @@ namespace ServiceStackBaseCms.ServiceModel;
 
 [Tag("UserClaims")]
 [Route("/UserClaims", "GET")]
-public class UserClaimsRequest : QueryBase
+public class UserClaimsRequest : QueryBase, IReturn<QueryResponse<UserClaimsDto>>
 {
     
+}
+
+[Tag("UserClaims")]
+[Route("/UserClaim/{Id}")]
+public class DeleteClaimRequest
+{
+    public int Id { get; set; }
 }
 
 [Tag("UserClaims")]
 [Route("/UserClaim/{Id}", "GET")]
 public class UserClaimRequest
 {
-    public string Id { get; set; }
+    public int Id { get; set; }
 }
 
 [Tag("UserClaims")]

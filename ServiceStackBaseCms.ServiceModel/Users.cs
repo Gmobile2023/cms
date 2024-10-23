@@ -6,7 +6,7 @@ namespace ServiceStackBaseCms.ServiceModel;
 [Tag("Admin")]
 
 [Route("/users", "GET")]
-public class UsersRequest : QueryBase
+public class UsersRequest : QueryBase, IReturn<QueryResponse<UserDto>>
 {
     public string Name { get; set; }
 }
@@ -14,6 +14,13 @@ public class UsersRequest : QueryBase
 [Tag("Admin")]
 [Route("/user/{Id}", "GET")]
 public class UserRequest
+{
+    public string Id { get; set; }
+}
+
+[Tag("Admin")]
+[Route("/user/{Id}")]
+public class DelteUserRequest
 {
     public string Id { get; set; }
 }

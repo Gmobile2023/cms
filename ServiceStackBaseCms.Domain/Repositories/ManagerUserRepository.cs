@@ -121,6 +121,7 @@ public class ManagerUserRepository : IManagerUserRepository
                 listUserClaim.Add(userClaims);
             }
         }
+        await db.InsertAllAsync(listUserClaim);
         trans.Commit(); 
         return true;
     }
@@ -347,8 +348,11 @@ public class ManagerUserRepository : IManagerUserRepository
         {
             var query = db.From<Users>().Where(x => x.Id == id);
            var queryRole = db.From<UserRoles>().LeftJoin<Roles>((ur,u) => ur.RoleId == u.Id).Where(x => x.UserId == id);
+           
            var role = (await db.SelectAsync<Roles>(queryRole)).Select(x => x.Name).ToList();
             var user = await db.SingleAsync<UserDto>(query);
+            var userClaim = (await db.SelectAsync<UserClaims>(x => x.UserId == user.Id)).ToList();
+            user.UserClaims = userClaim.ConvertTo<List<UserClaimsDto>>();
             user.RoleName = role;
             var userDto = user.ConvertTo<UserDto>();
             return userDto;
@@ -367,7 +371,7 @@ public class ManagerUserRepository : IManagerUserRepository
             var query = db.From<Users>();
             var total = (int)db.Count(query);
             query.Skip(request.Skip).Take(request.Take);
-            var users = db.Select<Users>(query);
+            var users = db.Select<UserDto>(query);
             var Roles = db.SelectMulti<Roles, UserRoles>(
                 db.From<Roles>()
                     .Join<UserRoles>((ur, r) => ur.Id == r.RoleId)
