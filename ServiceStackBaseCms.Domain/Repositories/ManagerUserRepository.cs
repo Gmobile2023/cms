@@ -158,6 +158,25 @@ public class ManagerUserRepository : IManagerUserRepository
             return new QueryResponse<Roles>();
         }
     }
+    
+    public async Task<RolesDto> GetRole(RoleRequest request)
+    {
+        using var db =  _connectionFactory.OpenDbConnection();
+        try
+        {
+            var role = await db.SingleByIdAsync<Roles>(request.Id);
+            var rolesDto = role.ConvertTo<RolesDto>();
+            var roleClaim = await db.SelectAsync<RoleClaims>(x => x.RoleId == role.Id);
+            rolesDto.RoleClaims = roleClaim.ConvertTo<List<RoleClaimsDto>>();
+            return rolesDto;
+
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
 
     public async Task<QueryResponse<UserClaims>> GetUserClaims(UserClaimsRequest request)
     {
@@ -260,7 +279,23 @@ public class ManagerUserRepository : IManagerUserRepository
         try
         {
             var role = request.ConvertTo<Roles>();
-            await db.InsertAsync(role);
+            await db.InsertAsync(role,true);
+            var listRoleClaim = new List<RoleClaims>();
+            if (request.RoleClaims != null)
+            {
+                foreach (var roleClaim in request.RoleClaims)
+                {
+                    var newRoleClaim = new RoleClaims()
+                    {
+                        RoleId = role.Id,
+                        ClaimType = roleClaim.ClaimType,
+                        ClaimValue = roleClaim.ClaimValue
+                    };
+                    listRoleClaim.Add(newRoleClaim);
+                }
+            }
+
+            await db.InsertAllAsync(listRoleClaim);
             return true;
         }
         catch (Exception e)
@@ -276,6 +311,22 @@ public class ManagerUserRepository : IManagerUserRepository
         {
             var role = request.ConvertTo<Roles>();
             await db.UpdateAsync(role);
+            var listRoleClaim = new List<RoleClaims>();
+            await db.DeleteAsync<RoleClaims>(x => x.RoleId == role.Id);
+            if (request.RoleClaims != null)
+            {
+                foreach (var roleClaim in request.RoleClaims)
+                {
+                    var newRoleClaim = new RoleClaims()
+                    {
+                        RoleId = role.Id,
+                        ClaimType = roleClaim.ClaimType,
+                        ClaimValue = roleClaim.ClaimValue
+                    };
+                    listRoleClaim.Add(newRoleClaim);
+                }
+            }
+            
             return true;
         }
         catch (Exception e)
