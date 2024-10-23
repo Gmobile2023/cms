@@ -17,6 +17,13 @@ public class RolesRequest : QueryBase, IReturn<QueryResponse<RolesDto>>
 }
 
 [Tag("Role")]
+[Route("/role/{Id}", "GET")]
+public class RoleRequest
+{
+    public string Id { get; set; }
+}
+
+[Tag("Role")]
 [Route("/role/{Id}", "DELETE")]
 public class DeleteRoleRequest
 {

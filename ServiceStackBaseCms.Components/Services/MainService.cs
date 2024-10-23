@@ -127,4 +127,9 @@ public class MainService : Service
     {
         return await _managerUserRepository.GetPermissions(request);
     }
+    
+    public async Task<object> GetAsync(RoleRequest request)
+    {
+        return await _managerUserRepository.GetRole(request);
+    }
 }
