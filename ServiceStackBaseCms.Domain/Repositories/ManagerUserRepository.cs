@@ -36,7 +36,8 @@ public class ManagerUserRepository : IManagerUserRepository
                     var role = await _userManager.AddToRolesAsync(user, request.Roles);
                     
                 }
-                var listUserClaim = new List<UserClaims>();
+                // var listUserClaim = new List<UserClaims>();
+                if (request.UserClaims == null) return true;
                 foreach (var userClaim in request.UserClaims)
                 {
                     var userClaims = new UserClaims()
@@ -45,9 +46,9 @@ public class ManagerUserRepository : IManagerUserRepository
                         ClaimValue = userClaim.ClaimValue,
                         ClaimType = userClaim.ClaimValue,
                     };
-                    listUserClaim.Add(userClaims);
+                    await db.InsertAsync(userClaims);
                 }
-                await db.InsertAllAsync(listUserClaim);
+                
                 trans.Commit();
                 return true;
             }
@@ -79,6 +80,7 @@ public class ManagerUserRepository : IManagerUserRepository
         user.Email = request.Email;
         user.UserName = request.UserName;
         user.LastName = request.LastName;
+        user.FirstName = request.FirstName;
         user.PhoneNumber = request.PhoneNumber;
         user.NormalizedEmail = request.Email.ToUpper();
         user.NormalizedUserName = request.UserName.ToUpper();
