@@ -2,6 +2,8 @@
 using ServiceStackBaseCms.Domain.Repositories;
 using ServiceStackBaseCms.ServiceModel;
 using ServiceStack;
+using ServiceStackBaseCms.Domain.Entities;
+
 namespace ServiceStackBaseCms.Components.Services;
 
 public class MainService : Service
@@ -45,12 +47,6 @@ public class MainService : Service
     {
         return await _managerUserRepository.CreateUser(request);
     }
-    
-    // public async Task<object> PostAsync(PermissionsRequest request)
-    // {
-    //     return QueryResponse()
-    // }
-
     public async Task<object> PutAsync(UpdateUserRequest request)
     {
         return await _managerUserRepository.UpdateUser(request);
@@ -62,12 +58,16 @@ public class MainService : Service
 
     public async Task<object> GetAsync(UserRequest request)
     {
-        return await _managerUserRepository.GetUser(request.Id);
+        var response =  await _managerUserRepository.GetUser(request.Id);
+        return response;
     }
 
     public async Task<object> GetAsync(RolesRequest request)
     {
-        return await _managerUserRepository.GetRoles(request);
+        var response = await _managerUserRepository.GetRoles(request);
+        response.ConvertTo<QueryResponse<RolesDto>>();
+
+        return response;
     }
 
     public async Task<object> GetAsync(UserClaimRequest request)
@@ -77,7 +77,9 @@ public class MainService : Service
     
     public async Task<object> GetAsync(UserClaimsRequest request)
     {
-        return await _managerUserRepository.GetUserClaims(request);
+        var response =  await _managerUserRepository.GetUserClaims(request);
+        response.ConvertTo<UserClaimsDto>();
+        return response;
     }
     
     public async Task<object> PutAsync(UpdateUserClaimRequest request)
@@ -91,7 +93,9 @@ public class MainService : Service
     }
     public async Task<object> GetAsync(RoleClaimsRequest request)
     {
-        return await _managerUserRepository.GetRoleClaims(request);
+        var response = await _managerUserRepository.GetRoleClaims(request);
+        response.ConvertTo<QueryResponse<RoleClaimsDto>>();
+        return response;
     }
     
     public async Task<object> GetAsync(RoleClaimRequest request)

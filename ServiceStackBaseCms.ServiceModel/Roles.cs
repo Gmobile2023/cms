@@ -11,9 +11,16 @@ public class Roles
 
 [Tag("Role")]
 [Route("/roles", "GET")]
-public class RolesRequest : QueryBase
+public class RolesRequest : QueryBase, IReturn<QueryResponse<RolesDto>>
 {
     public string Name { get; set; }
+}
+
+[Tag("Role")]
+[Route("/role/{Id}", "DELETE")]
+public class DeleteRoleRequest
+{
+    public int Id { get; set; }
 }
 
 
@@ -25,6 +32,8 @@ public class CreateRolesRequest
     public string? Name { get; set; }
     public  string? NormalizedName { get; set; }
     public string? ConcurrencyStamp { get; set; }
+    
+    public List<RoleClaimsDto> RoleClaims { get; set; }
 
 }
 
@@ -37,4 +46,5 @@ public class UpdateRolesRequest
     public string? Name { get; set; }
     public  string? NormalizedName { get; set; }
     public string? ConcurrencyStamp { get; set; }
+    public List<RoleClaimsDto> RoleClaims { get; set; }
 }

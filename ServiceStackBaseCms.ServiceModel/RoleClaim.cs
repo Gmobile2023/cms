@@ -15,8 +15,12 @@ public class CreateRoleClaim
 
     
     public  string? ClaimValue { get; set; }
+    
+    
 
 }
+
+
 [Tag("RoleClaim")]
 [Route("/RoleClaim", "PUT")]
 public class UpdateRoleClaim
@@ -24,12 +28,11 @@ public class UpdateRoleClaim
     public int Id { get; set; }
     public  string RoleId { get; set; }
     public  string? ClaimValue { get; set; }
-
 }
 
 [Tag("RoleClaim")]
 [Route("/RoleClaims", "GET")]
-public class RoleClaimsRequest
+public class RoleClaimsRequest : IReturn<QueryResponse<RoleClaimsDto>>
 {
     public int Id { get; set; }
     public  string RoleId { get; set; }

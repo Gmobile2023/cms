@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-22 16:29:05
+Date: 2024-10-23 10:24:39
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -47,6 +47,17 @@ export interface IPatchDb<Table> {}
 
 export interface IDeleteDb<Table> {}
 
+export class UserClaimsDto {
+    public id: number;
+    public userId: string;
+    public claimType?: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<UserClaimsDto>) {
+        (Object as any).assign(this, init);
+    }
+}
+
 // @DataContract
 export class QueryBase {
     // @DataMember(Order=1)
@@ -71,6 +82,17 @@ export class QueryBase {
     public meta: { [index: string]: string };
 
     public constructor(init?: Partial<QueryBase>) {
+        (Object as any).assign(this, init);
+    }
+}
+
+export class RoleClaimsDto {
+    public id: number;
+    public roleId: string;
+    public claimType?: string;
+    public claimValue?: string;
+
+    public constructor(init?: Partial<RoleClaimsDto>) {
         (Object as any).assign(this, init);
     }
 }
@@ -170,8 +192,8 @@ export class Page extends AuditBase {
     }
 }
 
-/** @description User Management */
-export class User extends AuditBase {
+export class UserDto {
+    public id: string;
     public firstName?: string;
     public lastName?: string;
     public displayName?: string;
@@ -203,16 +225,7 @@ export class Forecast implements IGet {
     public summary?: string;
     public temperatureF: number;
 
-    public constructor(init?: Partial<Forecast>) {
-        (Object as any).assign(this, init);
-    }
-}
-
-export class PageStats {
-    public label: string;
-    public total: number;
-
-    public constructor(init?: Partial<PageStats>) {
+    public constructor(init?: Partial<UserDto>) {
         (Object as any).assign(this, init);
     }
 }
@@ -258,12 +271,66 @@ export class ResponseStatus {
     }
 }
 
+export class RolesDto {
+    public id: string;
+    public name?: string;
+    public normalizedName?: string;
+    public concurrencyStamp?: string;
+    public roleClaims: RoleClaimsDto[];
+
+    public constructor(init?: Partial<RolesDto>) {
+        (Object as any).assign(this, init);
+    }
+}
+
+export class Forecast implements IGet {
+    public date: string;
+    public temperatureC: number;
+    public summary?: string;
+    public temperatureF: number;
+
+    public constructor(init?: Partial<Forecast>) {
+        (Object as any).assign(this, init);
+    }
+}
+
+export class PageStats {
+    public label: string;
+    public total: number;
+
+    public constructor(init?: Partial<PageStats>) {
+        (Object as any).assign(this, init);
+    }
+}
+
 export class TodoDto {
     public id: number;
     public text: string;
     public isFinished: boolean;
 
     public constructor(init?: Partial<TodoDto>) {
+        (Object as any).assign(this, init);
+    }
+}
+
+// @DataContract
+export class QueryResponse<UserDto> {
+    // @DataMember(Order=1)
+    public offset: number;
+
+    // @DataMember(Order=2)
+    public total: number;
+
+    // @DataMember(Order=3)
+    public results: UserDto[];
+
+    // @DataMember(Order=4)
+    public meta: { [index: string]: string };
+
+    // @DataMember(Order=5)
+    public responseStatus: ResponseStatus;
+
+    public constructor(init?: Partial<QueryResponse<UserDto>>) {
         (Object as any).assign(this, init);
     }
 }
@@ -369,28 +436,6 @@ export class AuthenticateResponse implements IHasSessionId, IHasBearerToken {
     public meta: { [index: string]: string };
 
     public constructor(init?: Partial<AuthenticateResponse>) {
-        (Object as any).assign(this, init);
-    }
-}
-
-// @DataContract
-export class QueryResponse<Booking> {
-    // @DataMember(Order=1)
-    public offset: number;
-
-    // @DataMember(Order=2)
-    public total: number;
-
-    // @DataMember(Order=3)
-    public results: Booking[];
-
-    // @DataMember(Order=4)
-    public meta: { [index: string]: string };
-
-    // @DataMember(Order=5)
-    public responseStatus: ResponseStatus;
-
-    public constructor(init?: Partial<QueryResponse<Booking>>) {
         (Object as any).assign(this, init);
     }
 }
@@ -516,11 +561,8 @@ export class CreateUserRequest {
     public securityStamp?: string;
     public concurrencyStamp?: string;
     public phoneNumber?: string;
-    public phoneNumberConfirmed: boolean;
-    public twoFactorEnabled: boolean;
-    public lockoutEnd?: string;
-    public lockoutEnabled: boolean;
-    public roles: string[];
+    public roles?: string[];
+    public userClaims: UserClaimsDto[];
 
     public constructor(init?: Partial<CreateUserRequest>) {
         (Object as any).assign(this, init);
@@ -555,6 +597,7 @@ export class UpdateUserRequest {
     public lockoutEnd?: string;
     public lockoutEnabled: boolean;
     public roles: string[];
+    public userClaims: UserClaimsDto[];
 
     public constructor(init?: Partial<UpdateUserRequest>) {
         (Object as any).assign(this, init);
@@ -569,7 +612,10 @@ export class UpdateUserRequest {
 }
 
 // @Route("/users", "GET")
-export class UsersRequest extends QueryBase {
+export class UsersRequest
+    extends QueryBase
+    implements IReturn<QueryResponse<UserDto>>
+{
     public name: string;
 
     public constructor(init?: Partial<UsersRequest>) {
@@ -582,7 +628,9 @@ export class UsersRequest extends QueryBase {
     public getMethod() {
         return "GET";
     }
-    public createResponse() {}
+    public createResponse() {
+        return new QueryResponse<UserDto>();
+    }
 }
 
 // @Route("/user/{Id}", "GET")
@@ -602,7 +650,10 @@ export class UserRequest {
 }
 
 // @Route("/roles", "GET")
-export class RolesRequest extends QueryBase {
+export class RolesRequest
+    extends QueryBase
+    implements IReturn<QueryResponse<RolesDto>>
+{
     public name: string;
 
     public constructor(init?: Partial<RolesRequest>) {
@@ -615,12 +666,14 @@ export class RolesRequest extends QueryBase {
     public getMethod() {
         return "GET";
     }
-    public createResponse() {}
+    public createResponse() {
+        return new QueryResponse<RolesDto>();
+    }
 }
 
 // @Route("/UserClaim/{Id}", "GET")
 export class UserClaimRequest {
-    public id: string;
+    public id: number;
 
     public constructor(init?: Partial<UserClaimRequest>) {
         (Object as any).assign(this, init);
@@ -635,7 +688,10 @@ export class UserClaimRequest {
 }
 
 // @Route("/UserClaims", "GET")
-export class UserClaimsRequest extends QueryBase {
+export class UserClaimsRequest
+    extends QueryBase
+    implements IReturn<QueryResponse<UserClaimsDto>>
+{
     public constructor(init?: Partial<UserClaimsRequest>) {
         super(init);
         (Object as any).assign(this, init);
@@ -646,7 +702,9 @@ export class UserClaimsRequest extends QueryBase {
     public getMethod() {
         return "GET";
     }
-    public createResponse() {}
+    public createResponse() {
+        return new QueryResponse<UserClaimsDto>();
+    }
 }
 
 // @Route("/UserClaim", "PUT")
@@ -686,7 +744,9 @@ export class CreateUserClaimRequest {
 }
 
 // @Route("/RoleClaims", "GET")
-export class RoleClaimsRequest {
+export class RoleClaimsRequest
+    implements IReturn<QueryResponse<RoleClaimsDto>>
+{
     public id: number;
     public roleId: string;
     public claimValue?: string;
@@ -700,7 +760,9 @@ export class RoleClaimsRequest {
     public getMethod() {
         return "GET";
     }
-    public createResponse() {}
+    public createResponse() {
+        return new QueryResponse<RoleClaimsDto>();
+    }
 }
 
 // @Route("/RoleClaim/{Id}", "GET")
@@ -725,6 +787,7 @@ export class CreateRolesRequest {
     public name?: string;
     public normalizedName?: string;
     public concurrencyStamp?: string;
+    public roleClaims: RoleClaimsDto[];
 
     public constructor(init?: Partial<CreateRolesRequest>) {
         (Object as any).assign(this, init);
@@ -744,6 +807,7 @@ export class UpdateRolesRequest {
     public name?: string;
     public normalizedName?: string;
     public concurrencyStamp?: string;
+    public roleClaims: RoleClaimsDto[];
 
     public constructor(init?: Partial<UpdateRolesRequest>) {
         (Object as any).assign(this, init);
@@ -776,9 +840,7 @@ export class UpdateRoleClaim {
 }
 
 // @Route("/RoleClaim", "POST")
-
 export class CreateRoleClaim {
-    public id: number;
     public roleId: string;
     public claimType?: string;
     public claimValue?: string;
@@ -791,6 +853,21 @@ export class CreateRoleClaim {
     }
     public getMethod() {
         return "POST";
+    }
+    public createResponse() {}
+}
+
+// @Route("/permissions", "GET")
+export class PermissionsRequest extends QueryBase {
+    public constructor(init?: Partial<PermissionsRequest>) {
+        super(init);
+        (Object as any).assign(this, init);
+    }
+    public getTypeName() {
+        return "PermissionsRequest";
+    }
+    public getMethod() {
+        return "GET";
     }
     public createResponse() {}
 }
