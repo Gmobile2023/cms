@@ -45,6 +45,11 @@ public class MainService : Service
     {
         return await _managerUserRepository.CreateUser(request);
     }
+    
+    // public async Task<object> PostAsync(PermissionsRequest request)
+    // {
+    //     return QueryResponse()
+    // }
 
     public async Task<object> PutAsync(UpdateUserRequest request)
     {
@@ -112,5 +117,10 @@ public class MainService : Service
     public async Task<object> PostAsync(CreateRoleClaim request)
     {
         return await _managerUserRepository.CreateRoleClaim(request);
+    }
+    
+    public async Task<object> GetAsync(PermissionsRequest request)
+    {
+        return await _managerUserRepository.GetPermissions(request);
     }
 }
