@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-10-23 10:24:39
+Date: 2024-10-23 11:03:32
 Version: 8.40
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -869,6 +869,17 @@ export class PermissionsRequest extends QueryBase {
     public getMethod() {
         return "GET";
     }
+    public createResponse() {}
+}
+
+// @Route("/role/{Id}", "GET")
+export class RoleRequest
+{
+    public id: string;
+
+    public constructor(init?: Partial<RoleRequest>) { (Object as any).assign(this, init); }
+    public getTypeName() { return 'RoleRequest'; }
+    public getMethod() { return 'GET'; }
     public createResponse() {}
 }
 

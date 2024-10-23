@@ -26,8 +26,10 @@ public interface IManagerUserRepository
     Task<bool> UpdateRole(UpdateRolesRequest request);
 
     Task<QueryResponse<Permission>> GetPermissions(PermissionsRequest request);
-    
-    
 
-    
+    Task<RolesDto> GetRole(RoleRequest request);
+
+
+
+
 }
