@@ -6,6 +6,7 @@ namespace ServiceStackBaseCms.ServiceModel;
 [Tag("Admin")]
 
 [Route("/users", "GET")]
+[ValidateHasClaim("perm","manager_user")]
 public class UsersRequest : QueryBase, IReturn<QueryResponse<UserDto>>
 {
     public string Name { get; set; }
@@ -28,6 +29,7 @@ public class DelteUserRequest
 [Tag("Admin")]
 // [ValidateHasRole("Admin")]
 [Route("/user", "POST")]
+[ValidateHasClaim("perm","manager_user")]
 public class CreateUserRequest
 {
     public string? FirstName { get; set; }
@@ -57,7 +59,7 @@ public class CreateUserRequest
 }
 
 [Tag("Admin")]
-// [ValidateHasRole("Admin")]
+[ValidateHasClaim("perm","manager_user")]
 [Route("/user", "PUT")]
 public class UpdateUserRequest
 {

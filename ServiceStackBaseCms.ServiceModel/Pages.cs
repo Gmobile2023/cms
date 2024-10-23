@@ -22,6 +22,7 @@ public class Page : AuditBase
 [Tag("pages"), Description("Danh sách/Chi tiết page")]
 [Route("/pages", "GET")]
 [Route("/pages/{Id}", "GET")]
+[ValidateHasClaim("perm","manager_post")]
 [AutoApply(Behavior.AuditQuery)]
 public class QueryPages : QueryDb<Page>
 {
