@@ -24,7 +24,7 @@ const Sidebar = () => {
     );
     const location = useLocation();
     const dispatch = useDispatch();
-    const { hasPermission, revalidate } = useAuth();
+    const { hasPermission, hasRole } = useAuth();
 
     const toggleMenu = (value: string) => {
         setCurrentMenu((oldValue) => {
@@ -43,18 +43,21 @@ const Sidebar = () => {
         {
             label: "Trang chủ",
             path: "/dashboard",
+            role: "",
             permission: "",
             icon: <IconHome />,
         },
         {
             label: "Người dùng",
             path: "/users-manager",
+            role: "Admin",
             permission: "manager_user",
             icon: <IconMenuUsers />,
         },
         {
             label: "Quản lý Trang",
             path: "/pages",
+            role: "Manager",
             permission: "manager_post",
             icon: <IconNotesEdit />,
         },
@@ -63,6 +66,7 @@ const Sidebar = () => {
             submenu: [
                 { label: "Quản lý vai trò", path: "/managers/roles-manager" },
             ],
+            role: "Admin",
             permission: "manager_user",
             icon: <IconShare />,
         },
@@ -72,6 +76,7 @@ const Sidebar = () => {
                 { label: "Cài đặt", path: "/system/setting" },
                 { label: "Preview", path: "/system/preview" },
             ],
+            role: "",
             permission: "",
             icon: <IconSettings />,
         },
@@ -79,7 +84,13 @@ const Sidebar = () => {
 
     // Filter menu items based on permissions
     const filteredMenuItems = menuItems.filter((item) => {
-        return !item.permission || hasPermission(item.permission);
+        // Kiểm tra nếu item không yêu cầu role hoặc permission hoặc người dùng có cả role và permission
+        const hasRequiredRole = !item.role || hasRole(item.role);
+        const hasRequiredPermission =
+            !item.permission || hasPermission(item.permission);
+
+        // Trả về true nếu cả role và permission đều hợp lệ
+        return hasRequiredRole && hasRequiredPermission;
     });
 
     return (

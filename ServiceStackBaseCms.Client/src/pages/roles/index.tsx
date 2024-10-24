@@ -302,7 +302,7 @@ const Roles = () => {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-xl text-black dark:text-white-dark">
+                                    <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-2xl text-black dark:text-white-dark">
                                         <button
                                             type="button"
                                             onClick={() => setModal(false)}
@@ -333,7 +333,10 @@ const Roles = () => {
                                                     />
                                                 </div>
                                                 <div className="mb-5">
-                                                    <label htmlFor="role">
+                                                    <label
+                                                        htmlFor="role"
+                                                        className="mb-3"
+                                                    >
                                                         Chọn quyền
                                                     </label>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
@@ -363,7 +366,7 @@ const Roles = () => {
                                                                         />
                                                                         <span>
                                                                             {
-                                                                                perm.claimValue
+                                                                                perm.name
                                                                             }
                                                                         </span>
                                                                     </label>
@@ -407,6 +410,6 @@ const Roles = () => {
 };
 
 export default ValidateAuth(Roles, {
-    role: "Admin",
+    role: "Admin, Manager",
     permission: "manager_user",
 });

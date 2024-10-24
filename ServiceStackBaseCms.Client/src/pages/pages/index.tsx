@@ -242,6 +242,6 @@ const Pages = () => {
 };
 
 export default ValidateAuth(Pages, {
-    role: "Admin",
+    role: "Manager",
     permission: "manager_post",
 });
