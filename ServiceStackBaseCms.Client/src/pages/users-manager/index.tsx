@@ -24,7 +24,7 @@ const UsersManager = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [perms, setPerms] = useState([]);
-    const [pageSize, setPageSize] = useState( [0]);
+    const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
 
     useEffect(() => {
         setPage(1);
