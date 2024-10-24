@@ -14,6 +14,7 @@ import IconSettings from "../Icon/IconSettings";
 import IconNotesEdit from "../Icon/IconNotesEdit";
 import { useAuth } from "@/useAuth";
 import IconHome from "../Icon/IconHome";
+import IconShare from "../Icon/IconShare";
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>("");
@@ -63,7 +64,7 @@ const Sidebar = () => {
                 { label: "Quản lý vai trò", path: "/managers/roles-manager" },
             ],
             permission: "manager_user",
-            icon: <IconSettings />,
+            icon: <IconShare />,
         },
         {
             label: "Hệ thống",
