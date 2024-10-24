@@ -5,12 +5,7 @@ import { useDispatch } from "react-redux";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
-import {
-    CreateUser,
-    fetchAllUser,
-    getUser,
-    UpdateUser,
-} from "@/services/usersService";
+import { CreateUser, getUser, UpdateUser } from "@/services/usersService";
 import { getClaims, getRoles } from "@/services/rolesService";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Menu } from "@mantine/core";
@@ -20,6 +15,7 @@ import Select from "react-select";
 import { client } from "@/gateway";
 import { UsersRequest } from "@/dtos";
 import sortBy from "lodash/sortBy";
+import { ValidateAuth } from "@/useAuth";
 
 const PAGE_SIZES = [10, 20, 30];
 
@@ -629,4 +625,7 @@ const UsersManager = () => {
     );
 };
 
-export default UsersManager;
+export default ValidateAuth(UsersManager, {
+    role: "Admin, Manager",
+    permission: "manager_user",
+});
