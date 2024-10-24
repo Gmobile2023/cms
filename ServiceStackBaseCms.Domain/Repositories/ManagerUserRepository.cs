@@ -23,8 +23,6 @@ public class ManagerUserRepository : IManagerUserRepository
     }
     public async Task<bool> CreateUser(CreateUserRequest request)
     {
-        using var db =  _connectionFactory.OpenDbConnection();
-        using var trans = db.OpenTransaction();
         try
         {
             var user = request.ConvertTo<ApplicationUser>();
@@ -36,20 +34,15 @@ public class ManagerUserRepository : IManagerUserRepository
                     var role = await _userManager.AddToRolesAsync(user, request.Roles);
                     
                 }
-                // var listUserClaim = new List<UserClaims>();
                 if (request.UserClaims == null) return true;
+                var listUserClaim = new List<Claim>();
                 foreach (var userClaim in request.UserClaims)
                 {
-                    var userClaims = new UserClaims()
-                    {
-                        UserId = user.Id,
-                        ClaimValue = userClaim.ClaimValue,
-                        ClaimType = userClaim.ClaimValue,
-                    };
-                    await db.InsertAsync(userClaims);
+                    var userClaims = new Claim(userClaim.ClaimType, userClaim.ClaimValue);
+                    listUserClaim.Add(userClaims);
                 }
-                
-                trans.Commit();
+
+                await _userManager.AddClaimsAsync(user, listUserClaim);
                 return true;
             }
             else
@@ -60,7 +53,6 @@ public class ManagerUserRepository : IManagerUserRepository
         }
         catch (Exception e)
         {
-            trans.Rollback();
             return false;
         }
     }
@@ -68,71 +60,38 @@ public class ManagerUserRepository : IManagerUserRepository
     public async Task<bool> UpdateUser(UpdateUserRequest request)
 {
     using var db = _connectionFactory.OpenDbConnection();
-    using var trans = db.OpenTransaction();
     
     try
     {
-        // Lấy người dùng từ cơ sở dữ liệu
-        var user = await db.SingleByIdAsync<Users>(request.Id);
+        var user = await _userManager.FindByIdAsync(request.Id);
         if (user == null) return false; // Kiểm tra nếu người dùng không tồn tại
-
-        // Cập nhật thông tin người dùng
         user.Email = request.Email;
         user.UserName = request.UserName;
         user.LastName = request.LastName;
         user.FirstName = request.FirstName;
         user.PhoneNumber = request.PhoneNumber;
-        user.NormalizedEmail = request.Email.ToUpper();
-        user.NormalizedUserName = request.UserName.ToUpper();
-        var result = await db.UpdateAsync(user);
-        if (result == 0) return false;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded) return false;
         var currentRoles = await _userManager.GetRolesAsync(user);
         var rolesToUpdate = request.Roles ?? new List<string>();
-        
-        await db.DeleteAsync<UserRoles>(x => x.UserId == user.Id);
-        
-        var rolesInDb = (await db.SelectAsync<Roles>()).ToList(); 
-        var roleDictionary = new Dictionary<string, string>();
-        
-        foreach (var role in rolesInDb)
-        {
-            roleDictionary[role.Name] = role.Id;
-        }
-        var userRoles = rolesToUpdate
-            .Where(roleName => roleDictionary.TryGetValue(roleName, out string roleId))
-            .Select(roleName => new UserRoles
-            {
-                UserId = user.Id,
-                RoleId = roleDictionary[roleName]
-            }).ToList();
-
-        if (userRoles.Any())
-        {
-            await db.InsertAllAsync(userRoles);
-        }
-        var listUserClaim = new List<UserClaims>();
-        await db.DeleteAsync<UserClaims>(x => x.UserId == user.Id);
+        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        await _userManager.AddToRolesAsync(user, rolesToUpdate);
+        var currentClaims = await _userManager.GetClaimsAsync(user);
+        await _userManager.RemoveClaimsAsync(user, currentClaims);
+        var listClaimUpdate = new List<Claim>();
         if (request.UserClaims != null)
         {
             foreach (var userClaim in request.UserClaims)
             {
-                var userClaims = new UserClaims()
-                {
-                    UserId = user.Id,
-                    ClaimValue = userClaim.ClaimValue,
-                    ClaimType = userClaim.ClaimValue,
-                };
-                listUserClaim.Add(userClaims);
+                var userClaims = new Claim(userClaim.ClaimType, userClaim.ClaimValue);
+                listClaimUpdate.Add(userClaims);
             }
         }
-        await db.InsertAllAsync(listUserClaim);
-        trans.Commit(); 
+        await _userManager.AddClaimsAsync(user, listClaimUpdate);
         return true;
     }
     catch (Exception ex)
     {
-
-        trans.Rollback(); 
         return false;
     }
 }
@@ -173,7 +132,6 @@ public class ManagerUserRepository : IManagerUserRepository
             var roleClaim = await db.SelectAsync<RoleClaims>(x => x.RoleId == role.Id);
             rolesDto.RoleClaims = roleClaim.ConvertTo<List<RoleClaimsDto>>();
             return rolesDto;
-
         }
         catch (Exception e)
         {
@@ -269,7 +227,6 @@ public class ManagerUserRepository : IManagerUserRepository
         {
             var roleClaim = await db.SingleByIdAsync<RoleClaims>(request.Id);
             return roleClaim;
-
         }
         catch (Exception e)
         {
@@ -279,27 +236,21 @@ public class ManagerUserRepository : IManagerUserRepository
 
     public async Task<bool> CreateRole(CreateRolesRequest request)
     {
-        using var db =  _connectionFactory.OpenDbConnection();
         try
         {
-            var role = request.ConvertTo<Roles>();
+            var role = request.ConvertTo<IdentityRole>();
             role.Id = Guid.NewGuid().ToString();
             role.NormalizedName = role.Name.ToUpper();
-            await db.InsertAsync(role);
+            await _roleManager.CreateAsync(role);
+         
             if (request.RoleClaims != null)
             {
                 foreach (var roleClaim in request.RoleClaims)
                 {
-                    var newRoleClaim = new RoleClaims()
-                    {
-                        RoleId = role.Id,
-                        ClaimType = roleClaim.ClaimType,
-                        ClaimValue = roleClaim.ClaimValue
-                    };
-                   await db.InsertAsync(newRoleClaim);
+                    var newRoleClaim = new Claim("perm", roleClaim.ClaimValue);
+                   await _roleManager.AddClaimAsync(role, newRoleClaim);
                 }
             }
-            
             return true;
         }
         catch (Exception e)
@@ -310,28 +261,29 @@ public class ManagerUserRepository : IManagerUserRepository
 
     public async Task<bool> UpdateRole(UpdateRolesRequest request)
     {
-        using var db =  _connectionFactory.OpenDbConnection();
         try
         {
-            var role = request.ConvertTo<Roles>();
-            role.NormalizedName = role.Name.ToUpper();
-            await db.UpdateAsync(role);
-            await db.DeleteAsync<RoleClaims>(x => x.RoleId == role.Id);
-            if (request.RoleClaims != null)
+            var role = await _roleManager.FindByIdAsync(request.Id);
+            if (role == null)
             {
+                return false;
+            }
+            role.Name = request.Name;
+            var roles = await _roleManager.UpdateAsync(role);
+            if (roles.Succeeded && request.RoleClaims != null)
+            {
+                var currentClaims = await _roleManager.GetClaimsAsync(role);
+                    
+                foreach (var claim in currentClaims)
+                {
+                    await _roleManager.RemoveClaimAsync(role, claim);
+                }
                 foreach (var roleClaim in request.RoleClaims)
                 {
-                    var newRoleClaim = new RoleClaims()
-                    {
-                        RoleId = role.Id,
-                        ClaimType = roleClaim.ClaimType,
-                        ClaimValue = roleClaim.ClaimValue
-                    };
-                    await db.InsertAsync(newRoleClaim);
-                    
+                    var newRoleClaim = new Claim(roleClaim.ClaimType, roleClaim.ClaimValue);
+                    await _roleManager.AddClaimAsync(role, newRoleClaim);
                 }
             }
-            
             return true;
         }
         catch (Exception e)

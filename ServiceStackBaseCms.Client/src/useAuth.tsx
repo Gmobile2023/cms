@@ -16,6 +16,7 @@ type ValidateAuthProps = {
     permission?: string;
     redirectTo?: string;
 };
+
 export function ValidateAuth<TOriginalProps extends {}>(
     Component: React.FC<TOriginalProps>,
     validateProps?: ValidateAuthProps
@@ -26,7 +27,7 @@ export function ValidateAuth<TOriginalProps extends {}>(
     ) => {
         const navigate = useNavigate();
         const authProps = useAuth();
-        const { auth, signedIn, hasRole } = authProps;
+        const { auth, signedIn, hasRole, hasPermission } = authProps;
         const location = useLocation();
         useEffect(() => {
             const goTo = shouldRedirect();
@@ -42,7 +43,7 @@ export function ValidateAuth<TOriginalProps extends {}>(
                 ? Routes.signin(redirectTo)
                 : role && !hasRole(role)
                 ? Routes.forbidden()
-                : permission && !hasRole(permission)
+                : permission && !hasPermission(permission)
                 ? Routes.forbidden()
                 : null;
 
