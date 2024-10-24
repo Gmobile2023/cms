@@ -12,8 +12,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 { 
     public DbSet<Todo> Todo { get; set; }
     public DbSet<EndpointPermission> EndpointPermissions { get; set; }
-    
     public DbSet<Permission> Permission { get; set; }
+    public DbSet<UserClaims> UserClaims { get; set; }
+    public DbSet<RoleClaims> RoleClaims { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("public");
