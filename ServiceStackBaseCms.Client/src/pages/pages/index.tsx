@@ -108,7 +108,7 @@ const Pages = () => {
     };
 
     const handleEdit = (record: any) => {
-        navigate('/pages/edit');
+        navigate("/pages/edit");
     };
 
     const handleDelete = (record: any) => {
@@ -241,4 +241,7 @@ const Pages = () => {
     );
 };
 
-export default ValidateAuth(Pages);
+export default ValidateAuth(Pages, {
+    role: "Admin",
+    permission: "manager_post",
+});

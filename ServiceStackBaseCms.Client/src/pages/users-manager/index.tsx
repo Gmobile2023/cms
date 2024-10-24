@@ -5,12 +5,7 @@ import { useDispatch } from "react-redux";
 import IconX from "../../components/Icon/IconX";
 import { setPageTitle } from "@/store/slices/themeConfigSlice";
 import { SelectInput } from "@/components/Form";
-import {
-    CreateUser,
-    fetchAllUser,
-    getUser,
-    UpdateUser,
-} from "@/services/usersService";
+import { CreateUser, getUser, UpdateUser } from "@/services/usersService";
 import { getClaims, getRoles } from "@/services/rolesService";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Menu } from "@mantine/core";
@@ -20,6 +15,7 @@ import Select from "react-select";
 import { client } from "@/gateway";
 import { UsersRequest } from "@/dtos";
 import sortBy from "lodash/sortBy";
+import { ValidateAuth } from "@/useAuth";
 
 const PAGE_SIZES = [10, 20, 30];
 
@@ -41,7 +37,6 @@ const UsersManager = () => {
         direction: "asc",
     });
     const [roles, setRoles] = useState<any[]>([]);
-    const [selectedValue, setSelectedValue] = useState<string>("");
     const [totalRecords, setTotalRecords] = useState(0);
     const [addUserModal, setAddUserModal] = useState<any>(false);
 
@@ -63,18 +58,50 @@ const UsersManager = () => {
         params.roleName || []
     );
     const [selectedRoleClaims, setSelectedRoleClaims] = useState<string[]>(
-        params.roleClaims || []
+        params.userClaims || []
     );
+
+    const [search, setSearch] = useState<any>("");
+
+    const [filteredItems, setFilteredItems] = useState<any>(records);
 
     useEffect(() => {
         dispatch(setPageTitle("Users Manager"));
     });
 
     useEffect(() => {
+        fetchUsers();
+        getAllRoles();
+        getPermission();
+    }, []);
+
+    useEffect(() => {
         const from = (page - 1) * pageSize;
         const to = from + pageSize;
         setRecords(users.slice(from, to));
     }, [users, page, pageSize]);
+
+    useEffect(() => {
+        if (params.roleName) {
+            setSelectedRoles(params.roleName);
+        }
+        if (params.userClaims) {
+            let data = params.userClaims;
+            const claimValues = data.map((item: any) => item.claimValue);
+            setSelectedRoleClaims(claimValues);
+        }
+    }, [params]);
+
+    useEffect(() => {
+        setFilteredItems(() => {
+            return records.filter((item: any) => {
+                // console.log(item);
+                return item.userName
+                    .toLowerCase()
+                    .includes(search.toLowerCase());
+            });
+        });
+    }, [search, records]);
 
     // useEffect(() => {
     //     const data = sortBy(users, sortStatus.columnAccessor);
@@ -150,25 +177,9 @@ const UsersManager = () => {
         console.log("View record:", record);
     };
 
-    useEffect(() => {
-        fetchUsers();
-        getAllRoles();
-        getPermission();
-    }, []);
+    // useEffect(() => {
 
-    useEffect(() => {
-        if (params.roleName) {
-            setSelectedRoles(params.roleName);
-        }
-    }, [params]);
-
-    useEffect(() => {
-        if (params.roleClaims) {
-            let data = params.roleClaims;
-            const claimValues = data.map((item: any) => item.claimValue);
-            setSelectedRoleClaims(claimValues);
-        }
-    }, [params]);
+    // }, [params]);
 
     const handleRoleChange = (role: string) => {
         setSelectedRoles((prevSelectedRoles) => {
@@ -196,21 +207,6 @@ const UsersManager = () => {
         const { value, id } = e.target;
         setParams({ ...params, [id]: value });
     };
-
-    const [search, setSearch] = useState<any>("");
-
-    const [filteredItems, setFilteredItems] = useState<any>(records);
-
-    useEffect(() => {
-        setFilteredItems(() => {
-            return records.filter((item: any) => {
-                // console.log(item);
-                return item.userName
-                    .toLowerCase()
-                    .includes(search.toLowerCase());
-            });
-        });
-    }, [search, records]);
 
     const saveUser = async () => {
         const dataPerm = selectedRoleClaims.map((perm) => ({
@@ -629,4 +625,7 @@ const UsersManager = () => {
     );
 };
 
-export default UsersManager;
+export default ValidateAuth(UsersManager, {
+    role: "Admin, Manager",
+    permission: "manager_user",
+});

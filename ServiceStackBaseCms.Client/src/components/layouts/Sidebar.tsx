@@ -13,6 +13,7 @@ import IconMenuUsers from "../Icon/Menu/IconMenuUsers";
 import IconSettings from "../Icon/IconSettings";
 import IconNotesEdit from "../Icon/IconNotesEdit";
 import { useAuth } from "@/useAuth";
+import IconHome from "../Icon/IconHome";
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>("");
@@ -39,36 +40,29 @@ const Sidebar = () => {
     // Permissions
     const menuItems = [
         {
+            label: "Trang chủ",
+            path: "/dashboard",
+            permission: "",
+            icon: <IconHome />,
+        },
+        {
             label: "Người dùng",
             path: "/users-manager",
-            permission: "",
+            permission: "manager_user",
             icon: <IconMenuUsers />,
         },
         {
             label: "Quản lý Trang",
             path: "/pages",
-            permission: "",
+            permission: "manager_post",
             icon: <IconNotesEdit />,
         },
-        // {
-        //     label: "Quản lý roles",
-        //     path: "/roles-manager",
-        //     permission: "",
-        //     icon: <IconNotesEdit />,
-        // },
-        // {
-        //     label: "Quản lý permission",
-        //     path: "/permission-manager",
-        //     permission: "",
-        //     icon: <IconNotesEdit />,
-        // },
         {
             label: "Phân quyền",
             submenu: [
-                { label: "Quản lý vai trò", path: "/roles-manager" },
-                // { label: "Quản lý quyền", path: "/permission-manager" },
+                { label: "Quản lý vai trò", path: "/managers/roles-manager" },
             ],
-            permission: "",
+            permission: "manager_user",
             icon: <IconSettings />,
         },
         {

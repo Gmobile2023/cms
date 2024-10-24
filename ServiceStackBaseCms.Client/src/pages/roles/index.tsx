@@ -14,6 +14,7 @@ import {
 import { Button, Menu } from "@mantine/core";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import Swal from "sweetalert2";
+import { ValidateAuth } from "@/useAuth";
 
 const Roles = () => {
     const dispatch = useDispatch();
@@ -405,4 +406,7 @@ const Roles = () => {
     );
 };
 
-export default Roles;
+export default ValidateAuth(Roles, {
+    role: "Admin",
+    permission: "manager_user",
+});
